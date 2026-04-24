@@ -1,13 +1,13 @@
-const CACHE = "jazz-quiz-v1";
+const CACHE = "jazz-quiz-v2";
 const ASSETS = [
-  "/index.html",
-  "/manifest.json",
-  "/icon-192.png",
-  "/icon-512.png",
-  "/apple-touch-icon.png"
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./apple-touch-icon.png"
 ];
 
-// Install — cache all assets
 self.addEventListener("install", e => {
   e.waitUntil(
     caches.open(CACHE).then(c => c.addAll(ASSETS))
@@ -15,7 +15,6 @@ self.addEventListener("install", e => {
   self.skipWaiting();
 });
 
-// Activate — clear old caches
 self.addEventListener("activate", e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -25,7 +24,6 @@ self.addEventListener("activate", e => {
   self.clients.claim();
 });
 
-// Fetch — serve from cache, fall back to network
 self.addEventListener("fetch", e => {
   e.respondWith(
     caches.match(e.request).then(r => r || fetch(e.request))
