@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jazz Quiz">
+<meta name="theme-color" content="#085041">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<title>Jazz Progression Quiz</title>
+<style>
+/* ── CSS variable definitions for standalone use ─────────────────────────── */
+:root {
+  --color-background-primary:#ffffff;
+  --color-background-secondary:#f5f4f0;
+  --color-background-tertiary:#eeece7;
+  --color-background-info:#e6f1fb;
+  --color-background-success:#eaf3de;
+  --color-background-warning:#faeeda;
+  --color-background-danger:#fcebeb;
+  --color-text-primary:#1a1a18;
+  --color-text-secondary:#5f5e5a;
+  --color-text-tertiary:#888780;
+  --color-text-info:#0c447c;
+  --color-text-success:#27500a;
+  --color-text-warning:#633806;
+  --color-text-danger:#791f1f;
+  --color-border-tertiary:rgba(0,0,0,0.12);
+  --color-border-secondary:rgba(0,0,0,0.22);
+  --color-border-primary:rgba(0,0,0,0.35);
+  --color-border-info:rgba(24,95,165,0.4);
+  --color-border-success:rgba(59,109,17,0.4);
+  --color-border-warning:rgba(239,159,39,0.5);
+  --color-border-danger:rgba(226,75,74,0.4);
+  --border-radius-md:8px;
+  --border-radius-lg:12px;
+  --border-radius-xl:16px;
+  --font-sans:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-mono:'SF Mono','Fira Code',monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root {
+    --color-background-primary:#1e1e1c;
+    --color-background-secondary:#2a2a27;
+    --color-background-tertiary:#323230;
+    --color-background-info:#0c2a4a;
+    --color-background-success:#162a06;
+    --color-background-warning:#2a1a04;
+    --color-background-danger:#2a0808;
+    --color-text-primary:#f0ede6;
+    --color-text-secondary:#a8a49c;
+    --color-text-tertiary:#6e6b64;
+    --color-text-info:#85b7eb;
+    --color-text-success:#c0dd97;
+    --color-text-warning:#fac775;
+    --color-text-danger:#f09595;
+    --color-border-tertiary:rgba(255,255,255,0.12);
+    --color-border-secondary:rgba(255,255,255,0.22);
+    --color-border-primary:rgba(255,255,255,0.38);
+    --color-border-info:rgba(133,183,235,0.4);
+    --color-border-success:rgba(192,221,151,0.4);
+    --color-border-warning:rgba(250,199,117,0.5);
+    --color-border-danger:rgba(240,149,149,0.4);
+  }
+}
+
+/* ── Reset + base ─────────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary);color:var(--color-text-primary);min-height:100vh;padding:0 0 2rem}
+
+/* ── Layout ───────────────────────────────────────────────────────────────── */
+.app{padding:1rem .75rem 0;max-width:800px;margin:0 auto}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:8px}
+.ttl{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.hdr-btns{display:flex;gap:6px}
+.hdr-btn{font-size:12px;padding:4px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer}
+.hdr-btn:hover{background:var(--color-background-secondary)}
+.controls{display:flex;flex-direction:column;gap:6px;margin-bottom:.75rem}
+.ctrl-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.ctrl-lbl{font-size:11px;color:var(--color-text-secondary);min-width:56px}
+.tbtn{font-size:12px;padding:4px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation}
+.tbtn.on{background:#185FA5;color:#E6F1FB;border-color:#185FA5}
+.sbtn{font-size:12px;padding:4px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation}
+.sbtn.locked{background:#854F0B;color:#FAEEDA;border-color:#854F0B}
+.togbtn{font-size:12px;padding:4px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation}
+.togbtn.on{background:#0F6E56;color:#E1F5EE;border-color:#0F6E56}
+.dbtn{font-size:12px;padding:4px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation}
+.dbtn.on{background:#534AB7;color:#EEEDFE;border-color:#534AB7}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.75rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.6rem 1rem;text-align:center}
+.stat-l{font-size:12px;color:var(--color-text-secondary);margin-bottom:3px}
+.stat-n{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.prog-hdr{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.6rem 1rem;margin-bottom:.75rem;display:none}
+.prog-hdr.show{display:block}
+.prog-title{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.prog-meta{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.prog-pills{display:flex;gap:5px;margin-top:.5rem;flex-wrap:wrap}
+.prog-pill{font-size:11px;padding:2px 8px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary)}
+.prog-pill.done{background:#3B6D11;color:#EAF3DE;border-color:#3B6D11}
+.prog-pill.active{background:#185FA5;color:#E6F1FB;border-color:#185FA5;font-weight:500}
+.prog-pill.todo{opacity:.5}
+.prog-pill.pair{font-style:italic;opacity:.65;font-size:10px;border-style:dashed}
+.prog-pill.pair.done{border-style:solid}
+.form-bar{font-size:11px;color:var(--color-text-secondary);margin-top:4px;padding-top:4px;border-top:0.5px solid var(--color-border-tertiary)}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:.75rem}
+.spill{display:inline-block;font-size:12px;padding:3px 10px;border-radius:20px;background:var(--color-background-info);color:var(--color-text-info);border:0.5px solid var(--color-border-info);margin-bottom:.6rem}
+.csym{font-size:34px;font-weight:500;color:var(--color-text-primary);margin-bottom:.15rem}
+.csub{font-size:13px;color:var(--color-text-secondary);margin-bottom:.5rem}
+.split-ctx{font-size:12px;color:var(--color-text-warning);background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-md);padding:3px 10px;display:inline-block;margin-bottom:.75rem}
+
+/* ── Note grid — touch-action:manipulation prevents double-tap zoom ──────── */
+.ngrid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:.9rem}
+.ncell{display:flex;flex-direction:column;align-items:center;gap:3px}
+.nb{width:100%;padding:10px 4px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:14px;cursor:pointer;text-align:center;font-weight:400;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.nb:hover{background:var(--color-background-secondary)}
+.nb:active{opacity:.8}
+.nb.cor{background:#3B6D11;color:#EAF3DE;border-color:#3B6D11;border-width:1px;font-weight:500}
+.nb.wrg{background:#A32D2D;color:#FCEBEB;border-color:#A32D2D;border-width:1px;font-weight:500}
+.nb.mis{background:#854F0B;color:#FAEEDA;border-color:#854F0B;border-width:1px;font-weight:500}
+.il{font-size:11px;text-align:center;color:transparent;min-height:14px;line-height:14px;font-weight:500;width:100%}
+.il.lit{color:#3B6D11}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.arow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.75rem}
+.btn{padding:8px 14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-size:14px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.btn:hover{background:var(--color-background-secondary)}
+.btn:active{opacity:.8}
+.btn.pri{background:#185FA5;color:#E6F1FB;border-color:#185FA5}
+.btn.pri:hover{background:#0C447C}
+.btn.grn{background:#3B6D11;color:#EAF3DE;border-color:#3B6D11}
+.btn.grn:hover{background:#27500A}
+.btn.red{background:transparent;color:#A32D2D;border-color:#A32D2D}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+
+/* ── Messages ─────────────────────────────────────────────────────────────── */
+.msg{font-size:13px;padding:8px 12px;border-radius:var(--border-radius-md);display:none}
+.msg.on{display:block}
+.msg.ok{background:var(--color-background-success);color:var(--color-text-success);border:0.5px solid var(--color-border-success)}
+.msg.no{background:var(--color-background-danger);color:var(--color-text-danger);border:0.5px solid var(--color-border-danger)}
+.msg.wn{background:var(--color-background-warning);color:var(--color-text-warning);border:0.5px solid var(--color-border-warning)}
+.msg.inf{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.div{border-top:0.5px solid var(--color-border-tertiary);margin:1.25rem 0 1rem}
+
+/* ── Chips ────────────────────────────────────────────────────────────────── */
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.9rem}
+.chip{display:flex;flex-direction:column;align-items:center;padding:5px 11px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);min-width:44px}
+.chip .cn{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.chip .ci{font-size:11px;color:var(--color-text-secondary)}
+.chip.fnd{background:var(--color-background-success);border-color:var(--color-border-success)}
+.chip.fnd .cn{color:var(--color-text-success)}
+.chip.fnd .ci{color:#3B6D11}
+
+/* ── Fretboard meta ───────────────────────────────────────────────────────── */
+.fbmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:.75rem}
+.badge{font-size:12px;padding:3px 9px;border-radius:var(--border-radius-md);border:0.5px solid}
+.badge.bl{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.badge.gr{background:var(--color-background-secondary);color:var(--color-text-secondary);border-color:var(--color-border-tertiary)}
+.badge.am{background:var(--color-background-warning);color:var(--color-text-warning);border-color:var(--color-border-warning)}
+.badge.tl{background:#E1F5EE;color:#085041;border-color:#1D9E75}
+.fbnote{font-size:12px;color:var(--color-text-secondary);font-style:italic;margin-bottom:.5rem;display:none}
+
+/* ── Canvas — touch-action:none stops iOS page scroll ────────────────────── */
+.fbwrap{overflow-x:auto;padding-bottom:4px}
+#fbc{touch-action:none;display:block}
+
+/* ── Legend ───────────────────────────────────────────────────────────────── */
+.leg{display:flex;gap:12px;flex-wrap:wrap;margin-top:.5rem}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)}
+.ld{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.nxrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:.75rem}
+
+/* ── Summary ──────────────────────────────────────────────────────────────── */
+.summary{display:none}.summary.show{display:block}
+.sum-title{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:.25rem}
+.sum-meta{font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem}
+.sum-grid{display:grid;gap:6px;margin-bottom:1rem}
+.sum-cell{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.65rem .9rem;border-left:3px solid #639922}
+.sum-cell.missed{border-left-color:#E24B4A}
+.sum-sym{font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.sum-roman{font-size:11px;color:var(--color-text-secondary);margin-bottom:2px}
+.sum-tones{font-size:11px;color:var(--color-text-secondary)}
+.sum-tones span{color:#185FA5;font-weight:500}
+.sum-result{font-size:11px;margin-top:3px}
+.sum-result.pass{color:#3B6D11}.sum-result.fail{color:#A32D2D}.sum-result.skip{color:#888780}
+.sum-sec-lbl{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:.75rem 0 .35rem;padding-left:2px}
+.sum-footer{font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;padding:.75rem 1rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+
+/* ── Review ───────────────────────────────────────────────────────────────── */
+.review{display:none}.review.show{display:block}
+.rev-title{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:.25rem}
+.rev-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:.75rem}
+.rev-empty{font-size:13px;color:var(--color-text-secondary);padding:1rem 0}
+.rev-item{display:flex;align-items:center;gap:10px;padding:.45rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.rev-item:last-child{border-bottom:none}
+.rev-name{font-size:13px;font-weight:500;color:var(--color-text-primary);min-width:100px}
+.rev-bars{flex:1;display:flex;flex-direction:column;gap:3px}
+.rev-bar-row{display:flex;align-items:center;gap:6px}
+.rev-bar-wrap{flex:1;height:7px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden}
+.rev-bar{height:100%;border-radius:4px}
+.rev-pct{font-size:11px;min-width:32px;text-align:right}
+.rev-lbl{font-size:10px;color:var(--color-text-secondary);min-width:36px}
+
+/* ── Filter panel ─────────────────────────────────────────────────────────── */
+.filter-panel{display:none;margin-top:.5rem;padding:.75rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+.filter-panel.show{display:block}
+.filter-grid{display:flex;gap:5px;flex-wrap:wrap;margin-top:.4rem}
+.fbtn{font-size:11px;padding:3px 8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation}
+.fbtn.on{background:#185FA5;color:#E6F1FB;border-color:#185FA5}
+
+/* ── Mobile overrides ─────────────────────────────────────────────────────── */
+@media (max-width:480px){
+  .nb{padding:12px 4px;font-size:13px}
+  .sum-grid{grid-template-columns:repeat(2,1fr) !important}
+  .btn{padding:9px 12px;font-size:13px}
+  .csym{font-size:28px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden">Jazz Chord Progression Quiz</h1>
+<div class="hdr">
+  <span class="ttl">Jazz progression quiz</span>
+  <div class="hdr-btns">
+    <button class="hdr-btn" onclick="toggleReview()">Review</button>
+    <button class="hdr-btn" onclick="toggleFilter()">Filter</button>
+  </div>
+</div>
+<div class="controls">
+  <div class="ctrl-row"><span class="ctrl-lbl">Tiers</span><div id="tierRow"></div></div>
+  <div class="ctrl-row"><span class="ctrl-lbl">Shape</span><div id="shapeRow"></div><button class="togbtn" id="approachBtn" onclick="toggleApproach()">position only</button></div>
+  <div class="ctrl-row"><span class="ctrl-lbl">Density</span><div id="densityRow"></div></div>
+  <div class="ctrl-row">
+    <span class="ctrl-lbl">Split bars</span>
+    <button class="togbtn" id="splitBtn" onclick="toggleSplit()">simple mode</button>
+    <span id="splitHint" style="font-size:11px;color:var(--color-text-secondary);margin-left:4px">anchor chord only</span>
+  </div>
+</div>
+<div class="filter-panel" id="filterPanel">
+  <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:.25rem">Chord type filter</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:.4rem">Toggle off to exclude a family.</div>
+  <div class="filter-grid" id="filterGrid"></div>
+  <div style="margin-top:.5rem;display:flex;gap:6px">
+    <button class="btn" style="font-size:12px;padding:4px 10px" onclick="filterAll(true)">All on</button>
+    <button class="btn" style="font-size:12px;padding:4px 10px" onclick="filterAll(false)">All off</button>
+  </div>
+</div>
+<div class="stats">
+  <div class="stat"><div class="stat-l">Score</div><div class="stat-n" id="sScore">0</div></div>
+  <div class="stat"><div class="stat-l">Progressions</div><div class="stat-n" id="sProgs">0</div></div>
+  <div class="stat"><div class="stat-l">Streak</div><div class="stat-n" id="sStreak">0</div></div>
+</div>
+<div class="prog-hdr" id="progHdr">
+  <div class="prog-title" id="progTitle"> </div>
+  <div class="prog-meta" id="progMeta"> </div>
+  <div class="prog-pills" id="progPills"></div>
+  <div class="form-bar" id="formBar" style="display:none"> </div>
+</div>
+<div class="card" id="quizCard">
+  <div class="spill" id="stagePill">Stage 1 of 2 — spell the chord</div>
+  <div class="csym" id="csym">—</div>
+  <div class="csub" id="csub"> </div>
+  <div class="split-ctx" id="splitCtx" style="display:none"> </div>
+  <div class="ngrid" id="ngrid"></div>
+  <div class="arow">
+    <button class="btn pri" id="chkSpBtn" onclick="chkSpell()" disabled>Check</button>
+    <button class="btn" id="hintBtn" onclick="hint()">Hint</button>
+    <button class="btn" onclick="skipChord()">Skip chord</button>
+    <button class="btn red" onclick="skipProgression()">Skip progression</button>
+  </div>
+  <div class="msg" id="s1msg"></div>
+  <div id="fbSec" style="display:none">
+    <div class="div"></div>
+    <div class="spill">Stage 2 of 2 — fretboard placement</div>
+    <div class="csub" id="fbInstr" style="margin-bottom:.75rem"> </div>
+    <div class="fbnote" id="fbNote"></div>
+    <div class="chips" id="chips"></div>
+    <div class="fbmeta">
+      <span class="badge bl" id="cagedBadge"> </span>
+      <span class="badge gr" id="spanBadge">span: —</span>
+      <span class="badge tl" id="approachBadge" style="display:none">±1 fret</span>
+    </div>
+    <div class="fbwrap"><canvas id="fbc" height="210"></canvas></div>
+    <div class="leg">
+      <div class="li"><div class="ld" style="background:#185FA5"></div>tapped</div>
+      <div class="li"><div class="ld" style="background:#3B6D11"></div>correct</div>
+      <div class="li"><div class="ld" style="background:#A32D2D"></div>wrong note</div>
+      <div class="li"><div class="ld" style="background:#EF9F27;border:1px solid #854F0B"></div>out of zone</div>
+    </div>
+    <div class="msg inf on" id="fbMsg" style="margin-top:.75rem"> </div>
+    <div class="nxrow">
+      <button class="btn pri" id="chkFbBtn" onclick="chkFrets()" disabled>Check frets</button>
+      <button class="btn" onclick="clearTaps()">Clear</button>
+      <button class="btn" id="nxtChordBtn" style="display:none" onclick="advanceChord()">Next chord</button>
+    </div>
+  </div>
+</div>
+<div class="card summary" id="summaryCard">
+  <div class="sum-title" id="sumTitle"> </div>
+  <div class="sum-meta" id="sumMeta"> </div>
+  <div id="sumContent"></div>
+  <div class="sum-footer" id="sumFooter"> </div>
+  <button class="btn grn" onclick="nextProgression()">Next progression</button>
+</div>
+<div class="card review" id="reviewCard">
+  <div class="rev-title">Chord type review</div>
+  <div class="rev-sub" id="revSub">Pass rate by chord quality — weakest first</div>
+  <div id="revList"></div>
+  <div style="margin-top:1rem;display:flex;gap:8px">
+    <button class="btn" onclick="toggleReview()">Back to quiz</button>
+    <button class="btn red" onclick="resetTracker()">Reset stats</button>
+  </div>
+</div>
+</div>
+
+<script>
+// ── All music data and logic from v14, unchanged ────────────────────────────
+const NN=["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
+const OM={1:40,2:45,3:50,4:55,5:59,6:64};
+const CR={A:[1,5],G:[4,8],E:[5,10],C:[8,12],D:[10,14]};
+const SL=["E","A","D","G","B","e"];
+const FD=[3,5,7,9,12];
+const NC_MAP={"C":0,"Db":1,"D":2,"Eb":3,"E":4,"F":5,"Gb":6,"G":7,"Ab":8,"A":9,"Bb":10,"B":11};
+const NC_NAME={0:"C",1:"Db",2:"D",3:"Eb",4:"E",5:"F",6:"Gb",7:"G",8:"Ab",9:"A",10:"Bb",11:"B"};
+const DEG={"I":0,"bII":1,"II":2,"bIII":3,"III":4,"IV":5,"bV":6,"V":7,"bVI":8,"VI":9,"bVII":10,"VII":11};
+const Q_IV={"maj":[0,4,7],"min":[0,3,7],"dim":[0,3,6],"aug":[0,4,8],"maj7":[0,4,7,11],"dom7":[0,4,7,10],"m7":[0,3,7,10],"m7b5":[0,3,6,10],"dim7":[0,3,6,9],"mMaj7":[0,3,7,11],"dom9":[0,4,7,10,14],"dom13":[0,4,7,10,14,21],"dom7b9":[0,4,7,10,13],"dom7alt":[0,4,10,13,15,20],"dom7b9b13":[0,4,7,10,13,20],"maj9":[0,4,7,11,14],"m9":[0,3,7,10,14],"m11":[0,3,7,10,14,17]};
+const Q_LBL={"maj":["R","3","5"],"min":["R","b3","5"],"dim":["R","b3","b5"],"aug":["R","3","#5"],"maj7":["R","3","5","7"],"dom7":["R","3","5","b7"],"m7":["R","b3","5","b7"],"m7b5":["R","b3","b5","b7"],"dim7":["R","b3","b5","bb7"],"mMaj7":["R","b3","5","7"],"dom9":["R","3","5","b7","9"],"dom13":["R","3","5","b7","9","13"],"dom7b9":["R","3","5","b7","b9"],"dom7alt":["R","3","b7","b9","#9","b13"],"dom7b9b13":["R","3","5","b7","b9","b13"],"maj9":["R","3","5","7","9"],"m9":["R","b3","5","b7","9"],"m11":["R","b3","5","b7","9","11"]};
+const FB_IV={"maj":[0,4,7],"min":[0,3,7],"dim":[0,3,6],"aug":[0,4,8],"maj7":[0,4,7,11],"dom7":[0,4,7,10],"m7":[0,3,7,10],"m7b5":[0,3,6,10],"dim7":[0,3,6,9],"mMaj7":[0,3,7,11],"dom9":[0,4,10,14],"dom13":[0,4,10,21],"dom7b9":[0,4,10,13],"dom7alt":[0,10,13,15],"dom7b9b13":[0,10,13,20],"maj9":[0,4,11,14],"m9":[0,3,10,14],"m11":[0,3,10,17]};
+const FB_LBL={"maj":["R","3","5"],"min":["R","b3","5"],"dim":["R","b3","b5"],"aug":["R","3","#5"],"maj7":["R","3","5","7"],"dom7":["R","3","5","b7"],"m7":["R","b3","5","b7"],"m7b5":["R","b3","b5","b7"],"dim7":["R","b3","b5","bb7"],"mMaj7":["R","b3","5","7"],"dom9":["R","3","b7","9"],"dom13":["R","3","b7","13"],"dom7b9":["R","3","b7","b9"],"dom7alt":["R","b7","b9","#9"],"dom7b9b13":["R","b7","b9","b13"],"maj9":["R","3","7","9"],"m9":["R","b3","b7","9"],"m11":["R","b3","b7","11"]};
+function makeSym(r,q){const m={"maj":r,"min":r+"m","dim":r+"°","aug":r+"+","maj7":r+"maj7","dom7":r+"7","m7":r+"m7","m7b5":r+"m7b5","dim7":r+"°7","mMaj7":r+"mMaj7","dom9":r+"9","dom13":r+"13","dom7b9":r+"7b9","dom7alt":r+"7alt","dom7b9b13":r+"7b9b13","maj9":r+"maj9","m9":r+"m9","m11":r+"m11"};return m[q]||r+"("+q+")";}
+
+const CHORD_FAMILIES={major:["maj","maj7","maj9"],minor:["min","m7","m9","m11"],dominant:["dom7","dom9","dom13","dom7b9","dom7b9b13"],altered:["dom7alt"],halfDim:["m7b5"],fullDim:["dim","dim7"],minMaj:["mMaj7"],augmented:["aug","aug7"]};
+const FAMILY_LABELS={major:"Major",minor:"Minor",dominant:"Dominant",altered:"Altered",halfDim:"Half-dim",fullDim:"Diminished",minMaj:"MinMaj7",augmented:"Augmented"};
+const PROG_FAMILIES={maj_251:["minor","dominant","major"],min_251:["halfDim","dominant","minor"],turnaround:["major","minor","minor","dominant"],min_turn:["minor","minor","dominant","minor"],backdoor:["minor","dominant","major"],atrain:["major","dominant","minor","dominant"],blues_IV:["dominant","dominant"],iv_ivm:["major","minor"],stray_cat:["minor","minor","dominant","dominant"],modal_min:["minor","major","dominant","minor"],rhy_bridge:["minor","dominant","minor","dominant","minor","dominant","minor","dominant"],desc_251s:["halfDim","dominant","halfDim","dominant"],coltrane:["major","dominant","major","dominant"],rhy_A1:["major","minor","minor","dominant"],rhy_A2:["minor","dominant","major","fullDim"],rhy_A3:["major","fullDim","minor","dominant"],rhy_A4:["major","minor","minor","dominant"],basic_blues_1:["dominant","dominant","dominant","dominant"],basic_blues_2:["dominant","dominant","dominant","dominant"],basic_blues_3:["minor","dominant","dominant","minor","dominant"],bird_blues_1:["dominant","dominant","dominant","minor","dominant"],bird_blues_2:["dominant","fullDim","dominant","halfDim","dominant"],bird_blues_3:["minor","dominant","minor","dominant","minor","dominant"],minor_blues_1:["minor","minor","minor","minor"],minor_blues_2:["minor","minor","minor","minor"],minor_blues_3:["halfDim","dominant","minor","halfDim","dominant"]};
+
+const PROGS={
+  maj_251:{name:"Major ii–V–I",tier:1,chords:[["II","ii",["m7","m9","m9"],false,false,null],["V","V",["dom7","dom13","dom7alt"],false,false,null],["I","I",["maj7","maj9","maj7"],false,false,null]]},
+  min_251:{name:"Minor ii–V–i",tier:1,chords:[["II","ii°",["m7b5","m7b5","m7b5"],false,false,null],["V","V",["dom7b9","dom7b9b13","dom7b9b13"],false,false,null],["I","i",["m7","m9","m9"],false,false,null]]},
+  turnaround:{name:"I–vi–ii–V turnaround",tier:1,chords:[["I","I",["maj7","maj9","maj7"],false,false,null],["VI","vi",["m7","m9","m9"],false,false,null],["II","ii",["m7","m9","m9"],false,false,null],["V","V",["dom7","dom13","dom7alt"],false,false,null]]},
+  min_turn:{name:"Minor turnaround",tier:1,chords:[["I","i",["m7","m9","m9"],false,false,null],["IV","iv",["m7","m11","m11"],false,false,null],["V","V",["dom7b9","dom7b9b13","dom7b9b13"],false,false,null],["I","i",["m7","m9","m9"],false,false,null]]},
+  backdoor:{name:"Backdoor ii–bVII7–I",tier:2,chords:[["II","ii",["m7","m9","m9"],false,false,null],["bVII","bVII",["dom7","dom13","dom7alt"],false,false,null],["I","I",["maj7","maj9","maj7"],false,false,null]]},
+  atrain:{name:"I–II7–iim7–V (A Train)",tier:2,chords:[["I","I",["maj7","maj9","maj7"],false,false,null],["II","II7",["dom7","dom9","dom7alt"],false,false,null],["II","ii",["m7","m9","m9"],false,false,null],["V","V",["dom7","dom13","dom7alt"],false,false,null]]},
+  blues_IV:{name:"I7–IV7 blues move",tier:1,chords:[["I","I7",["dom7","dom9","dom7b9"],false,false,null],["IV","IV7",["dom7","dom9","dom7b9"],false,false,null]]},
+  iv_ivm:{name:"IV to iv minor",tier:2,chords:[["IV","IV",["maj7","maj9","maj7"],false,false,null],["IV","iv",["m7","m11","m11"],false,false,null]]},
+  stray_cat:{name:"im–im/b7–bVI7–V7",tier:2,chords:[["I","i",["m7","m9","m9"],false,false,null],["I","i/b7",["m7","m7","m7"],false,false,null],["bVI","bVI",["dom7","dom13","dom7alt"],false,false,null],["V","V",["dom7b9","dom7b9b13","dom7b9b13"],false,false,null]]},
+  modal_min:{name:"Modal minor i–bVI–bVII–i",tier:2,chords:[["I","i",["m7","m9","m11"],false,false,null],["bVI","bVI",["maj7","maj9","maj9"],false,false,null],["bVII","bVII",["dom7","dom9","dom7alt"],false,false,null],["I","i",["m7","m9","m11"],false,false,null]]},
+  rhy_bridge:{name:"Rhythm Changes bridge",tier:2,chords:[["VII","ii/III",["m7","m9","m9"],true,true,"ii–V/III"],["III","III7",["dom7","dom9","dom7alt"],true,false,"ii–V/III"],["III","ii/VI",["m7","m9","m9"],true,true,"ii–V/VI"],["VI","VI7",["dom7","dom9","dom7alt"],true,false,"ii–V/VI"],["VI","ii/II",["m7","m9","m9"],true,true,"ii–V/II"],["II","II7",["dom7","dom9","dom7alt"],true,false,"ii–V/II"],["II","ii/V",["m7","m9","m9"],true,true,"ii–V/V"],["V","V7",["dom7","dom9","dom7alt"],true,false,"ii–V/V"]]},
+  desc_251s:{name:"Descending ii–V pairs",tier:3,chords:[["III","iii°",["m7b5","m7b5","m7b5"],false,false,null],["VII","VII7",["dom7b9","dom7b9b13","dom7b9b13"],false,false,null],["II","ii°",["m7b5","m7b5","m7b5"],false,false,null],["VI","VI7",["dom7b9","dom7b9b13","dom7b9b13"],false,false,null]]},
+  coltrane:{name:"Coltrane changes",tier:4,chords:[["I","I",["maj7","maj9","maj7"],false,false,null],["bVI","bVI7",["dom7","dom9","dom7alt"],false,false,null],["bIII","bIII",["maj7","maj9","maj7"],false,false,null],["VII","VII7",["dom7","dom9","dom7alt"],false,false,null]]},
+  rhy_A1:{name:"Rhythm Changes A · bars 1–2",tier:2,chords:[["I","I",["maj7","maj9","maj7"],true,false,"I–vi"],["VI","vi",["m7","m9","m9"],true,true,"I–vi"],["II","ii",["m7","m9","m9"],true,true,"ii–V"],["V","V",["dom7","dom13","dom7alt"],true,false,"ii–V"]]},
+  rhy_A2:{name:"Rhythm Changes A · bars 3–4",tier:2,chords:[["V","vm7",["m7","m11","m11"],true,true,"vm7–I7"],["I","I7",["dom7","dom9","dom7b9"],true,false,"vm7–I7"],["IV","IV",["maj7","maj9","maj7"],true,false,"IV–°"],["bV","°",["dim7","dim7","dim7"],true,true,"IV–°"]]},
+  rhy_A3:{name:"Rhythm Changes A · bars 5–6",tier:2,chords:[["I","I",["maj7","maj9","maj7"],true,false,"I–°"],["bII","°",["dim7","dim7","dim7"],true,true,"I–°"],["II","ii",["m7","m9","m9"],true,true,"ii–V"],["V","V",["dom7","dom13","dom7alt"],true,false,"ii–V"]]},
+  rhy_A4:{name:"Rhythm Changes A · bars 7–8",tier:2,chords:[["I","I",["maj7","maj9","maj7"],true,false,"I–vi"],["VI","vi",["m7","m9","m9"],true,true,"I–vi"],["II","ii",["m7","m9","m9"],true,true,"ii–V"],["V","V",["dom7","dom13","dom7alt"],true,false,"ii–V"]]},
+  basic_blues_1:{name:"Jazz blues · bars 1–4",tier:1,chords:[["I","I7",["dom7","dom9","dom7b9"],false,false,null],["IV","IV7",["dom7","dom9","dom7b9"],false,false,null],["I","I7",["dom7","dom9","dom7b9"],false,false,null],["I","I7",["dom7","dom9","dom7b9"],false,false,null]]},
+  basic_blues_2:{name:"Jazz blues · bars 5–8",tier:1,chords:[["IV","IV7",["dom7","dom9","dom7b9"],false,false,null],["IV","IV7",["dom7","dom9","dom7b9"],false,false,null],["I","I7",["dom7","dom9","dom7b9"],false,false,null],["VI","VI7",["dom7","dom9","dom7alt"],false,false,null]]},
+  basic_blues_3:{name:"Jazz blues · bars 9–12",tier:1,chords:[["II","ii",["m7","m9","m9"],false,false,null],["V","V7",["dom7","dom13","dom7alt"],false,false,null],["I","I7",["dom7","dom9","dom7b9"],false,false,null],["II","ii",["m7","m9","m9"],true,true,"ii–V"],["V","V7",["dom7","dom13","dom7alt"],true,false,"ii–V"]]},
+  bird_blues_1:{name:"Bird blues · bars 1–4",tier:3,chords:[["I","I7",["dom7","dom9","dom7b9"],false,false,null],["IV","IV7",["dom7","dom9","dom7b9"],false,false,null],["I","I7",["dom7","dom9","dom7b9"],false,false,null],["II","ii/IV",["m7","m9","m9"],true,true,"ii–V/IV"],["I","V7/IV",["dom7","dom9","dom7b9"],true,false,"ii–V/IV"]]},
+  bird_blues_2:{name:"Bird blues · bars 5–8",tier:3,chords:[["IV","IV7",["dom7","dom9","dom7b9"],false,false,null],["bV","#IVdim7",["dim7","dim7","dim7"],false,false,null],["I","I7",["dom7","dom9","dom7b9"],false,false,null],["III","ii°/ii",["m7b5","m7b5","m7b5"],true,true,"ii°–V/ii"],["VI","V7b9/ii",["dom7b9","dom7b9b13","dom7b9b13"],true,false,"ii°–V/ii"]]},
+  bird_blues_3:{name:"Bird blues · bars 9–12",tier:3,chords:[["II","iim7",["m7","m9","m9"],false,false,null],["V","V7",["dom7","dom13","dom7alt"],false,false,null],["III","iiim7",["m7","m9","m9"],true,true,"iii–VI"],["VI","VI7b9",["dom7b9","dom7b9b13","dom7b9b13"],true,false,"iii–VI"],["II","iim7",["m7","m9","m9"],true,true,"ii–V"],["V","V7",["dom7","dom13","dom7alt"],true,false,"ii–V"]]},
+  minor_blues_1:{name:"Minor blues · bars 1–4",tier:2,chords:[["I","i",["m7","m9","m9"],false,false,null],["I","i",["m7","m9","m9"],false,false,null],["I","i",["m7","m9","m9"],false,false,null],["I","i",["m7","m9","m9"],false,false,null]]},
+  minor_blues_2:{name:"Minor blues · bars 5–8",tier:2,chords:[["IV","iv",["m7","m11","m11"],false,false,null],["IV","iv",["m7","m11","m11"],false,false,null],["I","i",["m7","m9","m9"],false,false,null],["I","i",["m7","m9","m9"],false,false,null]]},
+  minor_blues_3:{name:"Minor blues · bars 9–12",tier:2,chords:[["II","ii°",["m7b5","m7b5","m7b5"],false,false,null],["V","V7b9",["dom7b9","dom7b9b13","dom7b9b13"],false,false,null],["I","i",["m7","m9","m9"],false,false,null],["II","ii°",["m7b5","m7b5","m7b5"],true,true,"ii°–V"],["V","V7b9",["dom7b9","dom7b9b13","dom7b9b13"],true,false,"ii°–V"]]},
+};
+
+const FORMS={
+  rhy_A:{name:"Rhythm Changes A",fullName:"Rhythm Changes A (8 bars)",tier:2,sectionIds:["rhy_A1","rhy_A2","rhy_A3","rhy_A4"],barLabels:["bars 1–2","bars 3–4","bars 5–6","bars 7–8"]},
+  basic_blues:{name:"Jazz blues (major)",fullName:"Jazz blues — major (12 bars)",tier:1,sectionIds:["basic_blues_1","basic_blues_2","basic_blues_3"],barLabels:["bars 1–4","bars 5–8","bars 9–12"]},
+  bird_blues:{name:"Bird blues (bebop)",fullName:"Bird blues — bebop (12 bars)",tier:3,sectionIds:["bird_blues_1","bird_blues_2","bird_blues_3"],barLabels:["bars 1–4","bars 5–8","bars 9–12"]},
+  minor_blues:{name:"Minor blues",fullName:"Minor blues — jazz (12 bars)",tier:2,sectionIds:["minor_blues_1","minor_blues_2","minor_blues_3"],barLabels:["bars 1–4","bars 5–8","bars 9–12"]},
+};
+
+const STANDALONE_IDS=["maj_251","min_251","turnaround","min_turn","backdoor","atrain","blues_IV","iv_ivm","stray_cat","modal_min","rhy_bridge","desc_251s","coltrane"];
+const KEY_W={"C":8,"F":9,"Bb":10,"Eb":9,"Ab":8,"Db":6,"Gb":2,"B":3,"E":3,"A":4,"D":5,"G":7};
+const CYCLE4=["C","F","Bb","Eb","Ab","Db","Gb","B","E","A","D","G"];
+const SHAPES=["A","G","E","C","D"];
+const DENSITY=["basic","extended","altered"];
+const DENSITY_IDX={"basic":0,"extended":1,"altered":2,"random":-1};
+
+// ── localStorage persistence ───────────────────────────────────────────────
+const LS_KEY="jazzQuiz_v14";
+function saveState(){
+  try{localStorage.setItem(LS_KEY,JSON.stringify({
+    score:S.score,progs:S.progs,streak:S.streak,
+    tracker:S.tracker,keyDeck:S.keyDeck,
+    tiers:S.tiers,lockedShape:S.lockedShape,
+    lockedDensity:S.lockedDensity,
+    approachFrets:S.approachFrets,
+    splitBarMode:S.splitBarMode,
+    chordFilter:S.chordFilter,
+  }));}catch(e){}
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);if(!raw)return;
+    const d=JSON.parse(raw);
+    S.score=d.score||0;S.progs=d.progs||0;S.streak=d.streak||0;
+    S.tracker=d.tracker||{};S.keyDeck=d.keyDeck||[];
+    S.tiers=d.tiers||[1];S.lockedShape=d.lockedShape||null;
+    S.lockedDensity=d.lockedDensity||"random";
+    S.approachFrets=d.approachFrets||false;
+    S.splitBarMode=d.splitBarMode||false;
+    if(d.chordFilter)S.chordFilter=d.chordFilter;
+  }catch(e){}
+}
+
+let S={
+  tiers:[1],lockedShape:null,approachFrets:false,lockedDensity:"random",splitBarMode:false,
+  chordFilter:Object.fromEntries(Object.keys(CHORD_FAMILIES).map(f=>[f,true])),
+  score:0,progs:0,streak:0,
+  currentForm:null,formSectionIdx:0,formKey:null,formShape:null,formLog:[],
+  prog:null,chordIdx:0,progLog:[],keyDeck:[],
+  q:null,sel:new Set(),stage:1,taps:[],spelledOk:false,fbDone:false,
+  tracker:{},showingReview:false,showingFilter:false,
+};
+
+// Load persisted state before first render
+loadState();
+
+function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+function nc(m){return((m%12)+12)%12;}
+function nn(c){return NN[c];}
+function trackSeen(q){if(!S.tracker[q])S.tracker[q]={seen:0,spellPassed:0,fbPassed:0};S.tracker[q].seen++;saveState();}
+function trackSpell(q){if(!S.tracker[q])S.tracker[q]={seen:0,spellPassed:0,fbPassed:0};S.tracker[q].spellPassed++;saveState();}
+function trackFb(q){if(!S.tracker[q])S.tracker[q]={seen:0,spellPassed:0,fbPassed:0};S.tracker[q].fbPassed++;saveState();}
+function getWeakFamilies(){const weak=new Set();for(const[fam,quals] of Object.entries(CHORD_FAMILIES)){let seen=0,passed=0;quals.forEach(q=>{if(S.tracker[q]){seen+=S.tracker[q].seen;passed+=S.tracker[q].fbPassed;}});if(seen>=3&&passed/seen<0.6)weak.add(fam);}return weak;}
+function buildKeyDeck(){let d=[];CYCLE4.forEach(k=>{for(let i=0;i<KEY_W[k];i++)d.push(k);});for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}return d;}
+
+function buildSection(pid,key,shape,di){
+  const tmpl=PROGS[pid];const tonic=NC_MAP[key];
+  const chords=tmpl.chords.map(([deg,roman,variants,split,skipSimple,splitLabel])=>{
+    const baseDeg=deg.split("/")[0];const rootCls=(tonic+DEG[baseDeg])%12;const rootName=NC_NAME[rootCls];const quality=variants[di];
+    const family=Object.keys(CHORD_FAMILIES).find(f=>CHORD_FAMILIES[f].includes(quality));const filtered=family&&!S.chordFilter[family];
+    const spellTones=(Q_IV[quality]||[]).map((iv,i)=>{const cls=((rootCls+iv)%12+12)%12;return{name:NC_NAME[cls],cls,interval:(Q_LBL[quality]||[])[i]||""};});
+    const spellNames=[...new Set(spellTones.map(t=>t.name))];const spellMap={};spellTones.forEach(t=>{if(!spellMap[t.name])spellMap[t.name]=t.interval;});
+    const fbTones=(FB_IV[quality]||[]).map((iv,i)=>{const cls=((rootCls+iv)%12+12)%12;return{name:NC_NAME[cls],cls,interval:(FB_LBL[quality]||[])[i]||""};});
+    const fbNames=[...new Set(fbTones.map(t=>t.name))];
+    const skippedLbls=(Q_LBL[quality]||[]).filter((_,i)=>!(FB_IV[quality]||[]).includes((Q_IV[quality]||[])[i]));
+    return{root:rootName,quality,roman,symbol:makeSym(rootName,quality),spellTones,spellNames,spellMap,fbTones,fbNames,skippedLbls,slash:deg.includes("/"),filtered,split,skipSimple,splitLabel};
+  });
+  return{id:pid,name:tmpl.name,key,density:DENSITY[di],shape,chords,tier:tmpl.tier};
+}
+
+function buildProg(){
+  if(S.currentForm){const form=FORMS[S.currentForm];const pid=form.sectionIds[S.formSectionIdx];const di=S.lockedDensity==="random"?(Math.random()<0.5?0:Math.random()<0.6?1:2):DENSITY_IDX[S.lockedDensity];return buildSection(pid,S.formKey,S.formShape,di);}
+  if(!S.keyDeck.length)S.keyDeck=buildKeyDeck();
+  const key=S.keyDeck.pop();
+  const standPool=STANDALONE_IDS.filter(id=>S.tiers.includes(PROGS[id].tier));
+  const formPool=Object.keys(FORMS).filter(fid=>S.tiers.includes(FORMS[fid].tier));
+  let pool=[...standPool,...formPool.map(f=>"FORM:"+f)];
+  const weak=getWeakFamilies();
+  const weights=pool.map(pid=>{const realId=pid.startsWith("FORM:")?FORMS[pid.slice(5)].sectionIds[0]:pid;if(!weak.size)return 1;return 1+(PROG_FAMILIES[realId]||[]).filter(f=>weak.has(f)).length*2;});
+  const total=weights.reduce((a,b)=>a+b,0);let r=Math.random()*total;let chosen=pool[pool.length-1];
+  for(let i=0;i<pool.length;i++){r-=weights[i];if(r<=0){chosen=pool[i];break;}}
+  const di=S.lockedDensity==="random"?(Math.random()<0.5?0:Math.random()<0.6?1:2):DENSITY_IDX[S.lockedDensity];
+  const shape=S.lockedShape||rnd(SHAPES);
+  if(chosen.startsWith("FORM:")){const fid=chosen.slice(5);S.currentForm=fid;S.formSectionIdx=0;S.formKey=key;S.formShape=shape;S.formLog=[];return buildSection(FORMS[fid].sectionIds[0],key,shape,di);}
+  S.currentForm=null;return buildSection(chosen,key,shape,di);
+}
+
+function initTiers(){const el=document.getElementById("tierRow");el.innerHTML="";["T1","T2","T3","T4"].forEach((lbl,i)=>{const t=i+1;const b=document.createElement("button");b.className="tbtn"+(S.tiers.includes(t)?" on":"");b.textContent=lbl;b.onclick=()=>{if(S.tiers.includes(t)){if(S.tiers.length===1)return;S.tiers=S.tiers.filter(x=>x!==t);}else S.tiers=[...S.tiers,t];document.querySelectorAll(".tbtn").forEach((b2,j)=>b2.classList.toggle("on",S.tiers.includes(j+1)));saveState();};el.appendChild(b);});}
+function initShapes(){const el=document.getElementById("shapeRow");el.innerHTML="";SHAPES.forEach(sh=>{const b=document.createElement("button");b.className="sbtn"+(S.lockedShape===sh?" locked":"");b.id="sbtn_"+sh;b.textContent=sh;b.onclick=()=>{S.lockedShape=S.lockedShape===sh?null:sh;SHAPES.forEach(s=>document.getElementById("sbtn_"+s).classList.toggle("locked",S.lockedShape===s));saveState();};el.appendChild(b);});}
+function initDensity(){const el=document.getElementById("densityRow");el.innerHTML="";[["random","random"],["basic","basic"],["extended","extended"],["altered","altered"]].forEach(([val,lbl])=>{const b=document.createElement("button");b.className="dbtn"+(S.lockedDensity===val?" on":"");b.textContent=lbl;b.onclick=()=>{S.lockedDensity=val;document.querySelectorAll(".dbtn").forEach((b2,k)=>b2.classList.toggle("on",[["random","random"],["basic","basic"],["extended","extended"],["altered","altered"]][k][0]===val));saveState();};el.appendChild(b);});}
+function initFilter(){const el=document.getElementById("filterGrid");el.innerHTML="";Object.keys(CHORD_FAMILIES).forEach(fam=>{const b=document.createElement("button");b.className="fbtn"+(S.chordFilter[fam]?" on":"");b.id="fbtn_"+fam;b.textContent=FAMILY_LABELS[fam];b.onclick=()=>{S.chordFilter[fam]=!S.chordFilter[fam];b.classList.toggle("on",S.chordFilter[fam]);saveState();};el.appendChild(b);});}
+function filterAll(on){Object.keys(CHORD_FAMILIES).forEach(fam=>{S.chordFilter[fam]=on;document.getElementById("fbtn_"+fam).classList.toggle("on",on);});saveState();}
+function toggleApproach(){S.approachFrets=!S.approachFrets;document.getElementById("approachBtn").classList.toggle("on",S.approachFrets);document.getElementById("approachBtn").textContent=S.approachFrets?"±1 fret":"position only";document.getElementById("approachBadge").style.display=S.approachFrets?"inline-block":"none";saveState();}
+function toggleFilter(){S.showingFilter=!S.showingFilter;document.getElementById("filterPanel").classList.toggle("show",S.showingFilter);}
+function toggleSplit(){S.splitBarMode=!S.splitBarMode;const btn=document.getElementById("splitBtn");btn.classList.toggle("on",S.splitBarMode);btn.textContent=S.splitBarMode?"split bars":"simple mode";document.getElementById("splitHint").textContent=S.splitBarMode?"quiz all chords in split bars":"anchor chord only";saveState();}
+function initGrid(){const g=document.getElementById("ngrid");g.innerHTML="";NN.forEach(n=>{const cell=document.createElement("div");cell.className="ncell";const b=document.createElement("button");b.className="nb";b.id="nb_"+n;b.textContent=n;b.onclick=()=>togNote(n);const l=document.createElement("div");l.className="il";l.id="il_"+n;l.textContent="\u00a0";cell.appendChild(b);cell.appendChild(l);g.appendChild(cell);});}
+function togNote(n){if(S.stage!==1||S.spelledOk)return;const btn=document.getElementById("nb_"+n);if(S.sel.has(n)){S.sel.delete(n);btn.style.background="";btn.style.color="";btn.style.borderColor="";btn.style.fontWeight="";}else{S.sel.add(n);btn.style.background="#5F5E5A";btn.style.color="#F1EFE8";btn.style.borderColor="#5F5E5A";btn.style.fontWeight="500";}document.getElementById("chkSpBtn").disabled=S.sel.size===0;}
+
+function renderProgHeader(){
+  const p=S.prog;
+  document.getElementById("progTitle").textContent=p.name+" — "+p.key;
+  document.getElementById("progMeta").textContent=p.density+" · "+(S.lockedShape?"🔒 ":"")+p.shape+"-shape · chord "+(S.chordIdx+1)+" of "+p.chords.length;
+  const pills=document.getElementById("progPills");pills.innerHTML="";
+  let i=0;
+  while(i<p.chords.length){
+    const c=p.chords[i];
+    if(!S.splitBarMode&&c.split&&c.skipSimple&&i+1<p.chords.length&&p.chords[i+1].splitLabel===c.splitLabel){
+      const c2=p.chords[i+1];const isDone=S.chordIdx>i+1;const isActive=S.chordIdx===i||S.chordIdx===i+1;
+      const pill=document.createElement("span");pill.className="prog-pill pair"+(isDone?" done":isActive?" active":" todo");
+      pill.textContent=(isDone?"✓ ":"")+c.symbol+"/"+c2.symbol;pills.appendChild(pill);i+=2;
+    } else if(!S.splitBarMode&&c.split&&!c.skipSimple&&i>0&&p.chords[i-1].splitLabel===c.splitLabel){i++;}
+    else{const isDone=S.chordIdx>i;const isActive=S.chordIdx===i;const pill=document.createElement("span");pill.className="prog-pill"+(isDone?" done":isActive?" active":" todo");pill.textContent=(isDone?"✓ ":"")+c.symbol+(c.filtered?" (skip)":"");pills.appendChild(pill);i++;}
+  }
+  const fb=document.getElementById("formBar");
+  if(S.currentForm){const form=FORMS[S.currentForm];fb.style.display="block";fb.textContent=form.name+" · "+form.barLabels[S.formSectionIdx]+" · section "+(S.formSectionIdx+1)+" of "+form.sectionIds.length;}
+  else fb.style.display="none";
+  document.getElementById("progHdr").classList.add("show");
+}
+
+function loadChordFromProg(){
+  while(S.chordIdx<S.prog.chords.length){const c=S.prog.chords[S.chordIdx];if(c.filtered||(c.skipSimple&&!S.splitBarMode)){S.progLog.push({chord:c,spellOk:true,fbOk:true,warnings:[],auto:true});S.chordIdx++;}else break;}
+  if(S.chordIdx>=S.prog.chords.length){showSummary();return;}
+  const chord=S.prog.chords[S.chordIdx];
+  S.q=chord;S.sel=new Set();S.stage=1;S.taps=[];S.spelledOk=false;S.fbDone=false;
+  trackSeen(chord.quality);
+  document.getElementById("stagePill").textContent="Stage 1 of 2 — spell the chord";
+  document.getElementById("csym").textContent=chord.symbol;
+  document.getElementById("csub").textContent=chord.roman+" · "+chord.spellTones.length+" notes · "+S.prog.density;
+  const ctx=document.getElementById("splitCtx");
+  if(chord.split&&chord.splitLabel){ctx.style.display="inline-block";ctx.textContent="Split bar · "+chord.splitLabel+(chord.skipSimple?" · approach chord":" · resolution chord");}
+  else ctx.style.display="none";
+  document.getElementById("s1msg").className="msg";document.getElementById("s1msg").textContent="";
+  document.getElementById("chkSpBtn").disabled=true;document.getElementById("hintBtn").disabled=false;
+  document.getElementById("fbSec").style.display="none";
+  document.getElementById("chkFbBtn").disabled=true;document.getElementById("chkFbBtn").style.display="inline-block";
+  document.getElementById("nxtChordBtn").style.display="none";
+  document.getElementById("spanBadge").textContent="span: —";document.getElementById("spanBadge").className="badge gr";
+  NN.forEach(n=>{const b=document.getElementById("nb_"+n);if(b){b.className="nb";b.style.background="";b.style.color="";b.style.borderColor="";b.style.fontWeight="";}const l=document.getElementById("il_"+n);if(l){l.className="il";l.textContent="\u00a0";}});
+  renderProgHeader();
+}
+
+function chkSpell(){
+  const q=S.q;const correct=new Set(q.spellNames);let ok=true;
+  NN.forEach(n=>{const btn=document.getElementById("nb_"+n);const lbl=document.getElementById("il_"+n);btn.className="nb";btn.style.background="";btn.style.color="";btn.style.borderColor="";btn.style.fontWeight="";lbl.className="il";lbl.textContent="\u00a0";
+    if(correct.has(n)&&S.sel.has(n)){btn.className="nb cor";lbl.className="il lit";lbl.textContent=q.spellMap[n]||"";}
+    else if(!correct.has(n)&&S.sel.has(n)){btn.className="nb wrg";ok=false;}
+    else if(correct.has(n)&&!S.sel.has(n)){btn.className="nb mis";ok=false;}});
+  if(ok){S.spelledOk=true;S.stage=2;trackSpell(q.quality);setMsg("s1msg","ok","Correct — "+[...new Set(q.spellNames)].join(" ")+" · Now place on the fretboard.");document.getElementById("chkSpBtn").disabled=true;document.getElementById("hintBtn").disabled=true;openFb();}
+  else{setMsg("s1msg","no","Not quite. Orange = missed, red = wrong. Try again.");S.sel=new Set();S.streak=0;updStats();}
+}
+function hint(){const un=S.q.spellTones.find(t=>!S.sel.has(t.name));if(!un)return;S.sel.add(un.name);const b=document.getElementById("nb_"+un.name);b.style.background="#5F5E5A";b.style.color="#F1EFE8";b.style.borderColor="#5F5E5A";b.style.fontWeight="500";document.getElementById("chkSpBtn").disabled=false;}
+
+// ── devicePixelRatio-aware canvas helpers ──────────────────────────────────
+function getDPR(){return window.devicePixelRatio||1;}
+function getNF(){return window.innerWidth<420?12:15;}
+
+function getZone(){const[lo,hi]=CR[S.prog.shape];return S.approachFrets?[Math.max(0,lo-1),Math.min(getNF(),hi+1)]:[lo,hi];}
+function openFb(){
+  document.getElementById("fbSec").style.display="block";const q=S.q;const[lo,hi]=CR[S.prog.shape];
+  document.getElementById("cagedBadge").textContent=S.prog.shape+"-shape · frets "+lo+"–"+hi;
+  document.getElementById("approachBadge").style.display=S.approachFrets?"inline-block":"none";
+  document.getElementById("fbInstr").textContent="Tap the "+q.fbTones.length+" characteristic tones in the "+S.prog.shape+"-shape zone.";
+  const ne=document.getElementById("fbNote");if(q.skippedLbls.length>0){ne.textContent="Note: "+q.skippedLbls.join(", ")+" skipped — correct tones, not part of this voicing.";ne.style.display="block";}else ne.style.display="none";
+  buildChips();setMsg("fbMsg","inf","Find: "+q.fbNames.join(", ")+" in the shaded zone.");draw(false);
+  const c=document.getElementById("fbc");c.onclick=onTap;c.addEventListener("touchstart",onTap,{passive:false});window.addEventListener("resize",onResize);
+}
+function buildChips(){const el=document.getElementById("chips");el.innerHTML="";const seen=new Set();S.q.fbTones.forEach(t=>{if(seen.has(t.cls))return;seen.add(t.cls);const d=document.createElement("div");d.className="chip";d.id="chip_"+t.cls;d.innerHTML=`<span class="cn">${t.name}</span><span class="ci">${t.interval}</span>`;el.appendChild(d);});}
+function updChips(){const fc=new Set(S.taps.map(t=>nc(OM[t.string]+t.fret)));S.q.fbTones.forEach(t=>{const c=document.getElementById("chip_"+t.cls);if(c)c.classList.toggle("fnd",fc.has(t.cls));});}
+
+const GEO={LABEL_W:18,T:30,B:22,R:8,H:210};
+function calcGeo(cssW){
+  const nf=getNF();
+  const fw=(cssW-GEO.LABEL_W-GEO.R)/(nf+1);
+  return{fw,L_NUT:GEO.LABEL_W+fw,sh:(GEO.H-GEO.T-GEO.B)/5,nf};
+}
+function strY(s,T,sh){return T+(6-s)*sh;}
+function fretX(f,L,fw){return f===0?L-fw*0.5:L+(f-0.5)*fw;}
+
+function draw(result){
+  const canvas=document.getElementById("fbc");const q=S.q;
+  const dpr=getDPR();
+  // CSS width
+  const cssW=Math.min(canvas.closest(".fbwrap").offsetWidth||720,740);
+  const cssH=GEO.H;
+  // Physical backing store
+  canvas.width=Math.round(cssW*dpr);
+  canvas.height=Math.round(cssH*dpr);
+  canvas.style.width=cssW+"px";
+  canvas.style.height=cssH+"px";
+  const{fw,L_NUT,sh,nf}=calcGeo(cssW);
+  const{T,B,R,LABEL_W}=GEO;
+  const ctx=canvas.getContext("2d");
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,cssW,cssH);
+  const dark=window.matchMedia("(prefers-color-scheme:dark)").matches;
+  const lc=dark?"rgba(255,255,255,0.13)":"rgba(0,0,0,0.10)";const tc=dark?"#999":"#888";const dc=dark?"rgba(255,255,255,0.17)":"rgba(0,0,0,0.12)";
+  const[cLo,cHi]=CR[S.prog.shape];const[eLo,eHi]=getZone();
+  if(S.approachFrets){ctx.fillStyle=dark?"rgba(24,95,165,0.10)":"rgba(24,95,165,0.04)";const x0=eLo===0?LABEL_W:L_NUT+(eLo-1)*fw;const xW=eLo===0?(eHi)*fw+L_NUT-LABEL_W:(eHi-eLo+1)*fw;ctx.fillRect(x0,T-10,xW,5*sh+20);ctx.strokeStyle=dark?"rgba(24,95,165,0.30)":"rgba(24,95,165,0.20)";ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.strokeRect(x0,T-10,xW,5*sh+20);ctx.setLineDash([]);}
+  ctx.fillStyle=dark?"rgba(24,95,165,0.20)":"rgba(24,95,165,0.08)";ctx.fillRect(L_NUT+(cLo-1)*fw,T-10,(cHi-cLo+1)*fw,5*sh+20);
+  ctx.strokeStyle=dark?"rgba(24,95,165,0.48)":"rgba(24,95,165,0.30)";ctx.lineWidth=1;ctx.strokeRect(L_NUT+(cLo-1)*fw,T-10,(cHi-cLo+1)*fw,5*sh+20);
+  ctx.fillStyle=dark?"rgba(255,255,255,0.03)":"rgba(0,0,0,0.025)";ctx.fillRect(LABEL_W,T-10,fw,5*sh+20);
+  ctx.strokeStyle=dark?"rgba(255,255,255,0.45)":"rgba(0,0,0,0.35)";ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(L_NUT,T);ctx.lineTo(L_NUT,T+5*sh);ctx.stroke();
+  for(let f=1;f<=nf;f++){const x=L_NUT+f*fw;ctx.strokeStyle=lc;ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(x,T);ctx.lineTo(x,T+5*sh);ctx.stroke();}
+  for(let s=1;s<=6;s++){const y=strY(s,T,sh);ctx.strokeStyle=lc;ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(LABEL_W,y);ctx.lineTo(cssW-R,y);ctx.stroke();ctx.fillStyle=tc;ctx.font="10px "+getComputedStyle(document.body).fontFamily;ctx.textAlign="right";ctx.fillText(SL[s-1],LABEL_W-3,y+3);}
+  ctx.fillStyle=tc;ctx.font="10px "+getComputedStyle(document.body).fontFamily;ctx.textAlign="center";ctx.fillText("0",fretX(0,L_NUT,fw),T+5*sh+B-4);
+  FD.filter(f=>f<=nf).forEach(f=>{const x=fretX(f,L_NUT,fw);const r2=Math.min(fw*0.13,5);ctx.fillStyle=dc;if(f===12){ctx.beginPath();ctx.arc(x,strY(5,T,sh),r2,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x,strY(2,T,sh),r2,0,Math.PI*2);ctx.fill();}else{ctx.beginPath();ctx.arc(x,(strY(3,T,sh)+strY(4,T,sh))/2,r2,0,Math.PI*2);ctx.fill();}ctx.fillStyle=tc;ctx.font="10px "+getComputedStyle(document.body).fontFamily;ctx.textAlign="center";ctx.fillText(f,x,T+5*sh+B-4);});
+  const fbCls=new Set(q.fbTones.map(t=>t.cls));
+  S.taps.forEach(tap=>{if(tap.fret>nf)return;const ax=fretX(tap.fret,L_NUT,fw);const ay=strY(tap.string,T,sh);const midi=OM[tap.string]+tap.fret;const cls=nc(midi);const name=nn(cls);const isT=fbCls.has(cls);const inZ=tap.fret>=eLo&&tap.fret<=eHi;let fill=!result?"#185FA5":!isT?"#A32D2D":!inZ?"#EF9F27":"#3B6D11";const r=Math.min(fw*0.36,11);ctx.fillStyle=fill;ctx.beginPath();ctx.arc(ax,ay,r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#fff";ctx.font=`bold ${Math.min(r*0.85,9)}px `+getComputedStyle(document.body).fontFamily;ctx.textAlign="center";ctx.fillText(name,ax,ay+3);});
+}
+
+function getCoords(e,canvas){
+  const rect=canvas.getBoundingClientRect();
+  // Use CSS coordinates — getBoundingClientRect returns CSS px
+  const cssW=rect.width;const{fw,L_NUT,sh,nf}=calcGeo(cssW);const{T,LABEL_W}=GEO;
+  let cx,cy;if(e.touches){cx=e.touches[0].clientX-rect.left;cy=e.touches[0].clientY-rect.top;}else{cx=e.clientX-rect.left;cy=e.clientY-rect.top;}
+  let fret;if(cx<LABEL_W)return null;if(cx<L_NUT){fret=0;}else{fret=Math.ceil((cx-L_NUT)/fw);if(fret<1||fret>nf)return null;}
+  let bestStr=-1,bestDist=Infinity;for(let s=1;s<=6;s++){const d=Math.abs(cy-strY(s,T,sh));if(d<bestDist){bestDist=d;bestStr=s;}}if(bestDist>sh*0.48)return null;return{string:bestStr,fret};
+}
+function onTap(e){if(S.fbDone)return;e.preventDefault();const canvas=document.getElementById("fbc");const co=getCoords(e,canvas);if(!co)return;const idx=S.taps.findIndex(t=>t.string===co.string&&t.fret===co.fret);if(idx>=0)S.taps.splice(idx,1);else S.taps.push(co);draw(false);updChips();const frets=S.taps.map(t=>t.fret).filter(f=>f>0);const span=frets.length>1?Math.max(...frets)-Math.min(...frets):0;const sb=document.getElementById("spanBadge");sb.textContent="span: "+span+(span===1?" fret":" frets");sb.className="badge "+(span>4?"am":"gr");const foundCls=new Set(S.taps.map(t=>nc(OM[t.string]+t.fret)));const missing=S.q.fbTones.filter(t=>!foundCls.has(t.cls)).map(t=>t.name);if([...new Set(missing)].length===0)setMsg("fbMsg","ok","All tones found — press Check frets.");else setMsg("fbMsg","inf","Still needed: "+[...new Set(missing)].join(", ")+".");document.getElementById("chkFbBtn").disabled=S.taps.length===0;}
+function onResize(){if(S.fbDone||document.getElementById("fbSec").style.display==="none")return;draw(S.fbDone);}
+
+// Dark/light mode change listener
+window.matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>{if(document.getElementById("fbSec").style.display!=="none")draw(S.fbDone);});
+
+function chkFrets(){
+  S.fbDone=true;const q=S.q;const fbCls=new Set(q.fbTones.map(t=>t.cls));const foundCls=new Set(S.taps.map(t=>nc(OM[t.string]+t.fret)));const allFound=[...fbCls].every(c=>foundCls.has(c));const noExtras=[...foundCls].every(c=>fbCls.has(c));const frets=S.taps.map(t=>t.fret).filter(f=>f>0);const span=frets.length>1?Math.max(...frets)-Math.min(...frets):0;const[eLo,eHi]=getZone();const outZ=S.taps.filter(t=>t.fret>0&&(t.fret<eLo||t.fret>eHi));draw(true);let fbOk=false;let warnings=[];
+  if(allFound&&noExtras){fbOk=true;trackFb(q.quality);if(span>4)warnings.push("span "+span+" frets");if(outZ.length>0)warnings.push(outZ.length+" tap"+(outZ.length>1?"s":"")+" outside zone");setMsg("fbMsg",warnings.length?"wn":"ok","Correct!"+(warnings.length?" ("+warnings.join(", ")+")":""));document.getElementById("chkFbBtn").style.display="none";document.getElementById("nxtChordBtn").style.display="inline-block";}
+  else{const missing=q.fbTones.filter(t=>!foundCls.has(t.cls)).map(t=>t.name);const extra=[...foundCls].filter(c=>!fbCls.has(c)).map(c=>nn(c));let txt="";if(missing.length)txt+="Missing: "+[...new Set(missing)].join(", ")+". ";if(extra.length)txt+="Wrong: "+extra.join(", ")+". ";setMsg("fbMsg","no",txt+"Try again.");setTimeout(()=>{S.taps=[];S.fbDone=false;draw(false);updChips();setMsg("fbMsg","inf","Find: "+q.fbNames.join(", ")+" in the shaded zone.");document.getElementById("chkFbBtn").disabled=true;document.getElementById("spanBadge").textContent="span: —";document.getElementById("spanBadge").className="badge gr";},1800);}
+  S.progLog.push({chord:q,spellOk:S.spelledOk,fbOk,warnings});
+}
+function clearTaps(){S.taps=[];S.fbDone=false;draw(false);updChips();setMsg("fbMsg","inf","Find: "+S.q.fbNames.join(", ")+" in the shaded zone.");document.getElementById("chkFbBtn").disabled=true;document.getElementById("spanBadge").textContent="span: —";document.getElementById("spanBadge").className="badge gr";}
+function advanceChord(){
+  window.removeEventListener("resize",onResize);S.chordIdx++;
+  if(S.chordIdx>=S.prog.chords.length){
+    if(S.currentForm){S.formLog.push({sectionId:S.prog.id,sectionName:S.prog.name,log:[...S.progLog]});S.formSectionIdx++;const form=FORMS[S.currentForm];if(S.formSectionIdx<form.sectionIds.length){const di=S.lockedDensity==="random"?(Math.random()<0.5?0:Math.random()<0.6?1:2):DENSITY_IDX[S.lockedDensity];S.prog=buildSection(form.sectionIds[S.formSectionIdx],S.formKey,S.formShape,di);S.chordIdx=0;S.progLog=[];loadChordFromProg();return;}}
+    showSummary();
+  }else loadChordFromProg();
+}
+function skipChord(){S.progLog.push({chord:S.q,spellOk:false,fbOk:false,warnings:[],skipped:true});advanceChord();}
+function skipProgression(){window.removeEventListener("resize",onResize);S.currentForm=null;S.formLog=[];startNext();}
+function showSummary(){
+  window.removeEventListener("resize",onResize);
+  document.getElementById("quizCard").style.display="none";document.getElementById("progHdr").classList.remove("show");
+  document.getElementById("summaryCard").classList.add("show");
+  const isForm=S.currentForm&&S.formLog.length>0;const formObj=isForm?FORMS[S.currentForm]:null;
+  const allSections=isForm?[...S.formLog,{sectionId:S.prog.id,sectionName:S.prog.name,log:[...S.progLog]}]:[{sectionId:S.prog.id,sectionName:S.prog.name,log:[...S.progLog]}];
+  const allChords=allSections.flatMap(s=>s.log);const passed=allChords.filter(l=>l.spellOk&&l.fbOk&&!l.auto).length;const total=allChords.filter(l=>!l.auto).length;
+  document.getElementById("sumTitle").textContent=isForm?formObj.fullName:S.prog.name+" — "+S.prog.key;
+  document.getElementById("sumMeta").textContent=(isForm?S.formKey+" · ":S.prog.density+" · ")+S.prog.shape+"-shape · "+passed+" of "+total+" chords correct";
+  const content=document.getElementById("sumContent");content.innerHTML="";
+  allSections.forEach(sec=>{
+    if(allSections.length>1){const lbl=document.createElement("div");lbl.className="sum-sec-lbl";lbl.textContent=sec.sectionName;content.appendChild(lbl);}
+    const grid=document.createElement("div");grid.className="sum-grid";const quizzed=sec.log.filter(l=>!l.auto);
+    grid.style.gridTemplateColumns=`repeat(${Math.min(quizzed.length,window.innerWidth<480?2:4)},1fr)`;
+    quizzed.forEach(le=>{const c=le.chord;const cell=document.createElement("div");cell.className="sum-cell"+(le.spellOk&&le.fbOk?"":" missed");
+      const fbStr=c.fbTones.map(t=>`<span>${t.name}</span>`).join(" ");const splitNote=c.split?` <span style="font-size:10px;color:#854F0B">(${c.splitLabel})</span>`:"";
+      cell.innerHTML=`<div class="sum-roman">${c.roman}${splitNote}</div><div class="sum-sym">${c.symbol}</div><div class="sum-tones">FB: ${fbStr}</div><div class="sum-result ${le.spellOk&&le.fbOk?"pass":le.skipped?"skip":"fail"}">${le.skipped?"skipped":le.spellOk&&le.fbOk?"✓"+(le.warnings.length?" with warnings":""):(!le.spellOk?"spelling ":"")+(le.spellOk&&!le.fbOk?"fretboard ":"")+"needs work"}</div>`;
+      grid.appendChild(cell);});content.appendChild(grid);});
+  if(passed===total){S.score+=total;S.streak++;S.progs++;}else{S.score+=passed;S.streak=0;S.progs++;}
+  updStats();saveState();
+  const footer=document.getElementById("sumFooter");
+  if(passed===total)footer.textContent="Perfect — all "+total+" chords correct.";
+  else{const missed=allChords.filter(l=>!(l.spellOk&&l.fbOk)&&!l.auto&&!l.skipped).map(l=>l.chord.symbol);footer.textContent="Missed: "+[...new Set(missed)].join(", ")+".";}
+}
+function nextProgression(){document.getElementById("summaryCard").classList.remove("show");document.getElementById("quizCard").style.display="block";startNext();}
+function startNext(){S.prog=buildProg();S.chordIdx=0;S.progLog=[];loadChordFromProg();}
+function toggleReview(){S.showingReview=!S.showingReview;document.getElementById("reviewCard").classList.toggle("show",S.showingReview);document.getElementById("quizCard").style.display=S.showingReview?"none":"block";if(S.showingReview)renderReview();}
+function renderReview(){
+  const list=document.getElementById("revList");list.innerHTML="";const entries=Object.entries(S.tracker);
+  if(!entries.length){list.innerHTML='<div class="rev-empty">No data yet — complete some chords first.</div>';return;}
+  entries.sort((a,b)=>(a[1].seen?a[1].fbPassed/a[1].seen:1)-(b[1].seen?b[1].fbPassed/b[1].seen:1));
+  document.getElementById("revSub").textContent=entries.length+" chord type"+(entries.length>1?"s":"")+" tracked · weakest first";
+  entries.forEach(([quality,data])=>{const spellRate=data.seen?Math.round(data.spellPassed/data.seen*100):0;const fbRate=data.seen?Math.round(data.fbPassed/data.seen*100):0;const barColor=fbRate>=80?"#3B6D11":fbRate>=50?"#BA7517":"#A32D2D";
+    const item=document.createElement("div");item.className="rev-item";
+    item.innerHTML=`<div class="rev-name">${makeSym("",quality)||quality}</div><div class="rev-bars"><div class="rev-bar-row"><div class="rev-bar-wrap"><div class="rev-bar" style="width:${spellRate}%;background:#185FA5"></div></div><div class="rev-pct" style="color:#185FA5">${spellRate}%</div><div class="rev-lbl">spell</div></div><div class="rev-bar-row"><div class="rev-bar-wrap"><div class="rev-bar" style="width:${fbRate}%;background:${barColor}"></div></div><div class="rev-pct" style="color:${barColor}">${fbRate}%</div><div class="rev-lbl">${data.fbPassed}/${data.seen} fret</div></div></div>`;
+    list.appendChild(item);});
+}
+function resetTracker(){if(!confirm("Reset all tracking data?"))return;S.tracker={};renderReview();saveState();}
+function setMsg(id,type,txt){const el=document.getElementById(id);el.className="msg "+type+" on";el.textContent=txt;}
+function updStats(){document.getElementById("sScore").textContent=S.score;document.getElementById("sProgs").textContent=S.progs;document.getElementById("sStreak").textContent=S.streak;}
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+initTiers();initShapes();initDensity();initFilter();initGrid();
+// Apply loaded state to controls
+document.getElementById("approachBtn").classList.toggle("on",S.approachFrets);
+document.getElementById("approachBtn").textContent=S.approachFrets?"±1 fret":"position only";
+document.getElementById("approachBadge").style.display=S.approachFrets?"inline-block":"none";
+document.getElementById("splitBtn").classList.toggle("on",S.splitBarMode);
+document.getElementById("splitBtn").textContent=S.splitBarMode?"split bars":"simple mode";
+document.getElementById("splitHint").textContent=S.splitBarMode?"quiz all chords in split bars":"anchor chord only";
+updStats();
+S.prog=buildProg();S.chordIdx=0;S.progLog=[];
+loadChordFromProg();
+</script>
+
+<script>
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js")
+      .then(r => console.log("SW registered:", r.scope))
+      .catch(e => console.log("SW failed:", e));
+  });
+}
+</script>
+</body>
+</html>
