@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Jazz Guitar Study</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -3308,10 +3311,18 @@ function l3ShowSettings(){
   document.getElementById("introOverlay").style.display="flex";
 }
 
-// ── Service worker registration ────────────────────────────────────────────
+// ── Kill old service workers and force fresh load ─────────────────────────
 if("serviceWorker" in navigator){
+  // Unregister all old service workers first
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(reg=>{
+      // Keep only our current version
+      reg.active?.scriptURL.includes("sw.js") && reg.update();
+    });
+  });
+  // Register the new one
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("sw.js").catch(()=>{});
+    navigator.serviceWorker.register("sw.js?v=30").catch(()=>{});
   });
 }
 </script>
