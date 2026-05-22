@@ -1,13 +1,12 @@
 {
-  "name": "Jazz Progression Quiz",
-  "short_name": "Jazz Quiz",
-  "description": "Jazz chord spelling and fretboard placement quiz for guitarists",
-  "start_url": ".",
-  "scope": ".",
+  "name": "Jazz Guitar Study",
+  "short_name": "Jazz Study",
+  "description": "Jazz guitar chord and substitution study app",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#085041",
-  "theme_color": "#085041",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
+  "background_color": "#0F6E56",
+  "theme_color": "#0F6E56",
   "icons": [
     {
       "src": "icon-192.png",
