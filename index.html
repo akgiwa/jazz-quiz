@@ -2,14 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Jazz Quiz">
-<meta name="theme-color" content="#085041">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
-<title>Jazz Progression Quiz</title>
+<title>Jazz Guitar Study — v26</title>
 <style>
 /* ── CSS variable definitions for standalone use ─────────────────────────── */
 :root {
@@ -210,18 +204,240 @@ body{font-family:var(--font-sans);background:var(--color-background-tertiary);co
 .fbtn{font-size:11px;padding:3px 8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation}
 .fbtn.on{background:#185FA5;color:#E6F1FB;border-color:#185FA5}
 
-/* ── Mobile overrides ─────────────────────────────────────────────────────── */
-@media (max-width:480px){
-  .nb{padding:12px 4px;font-size:13px}
-  .sum-grid{grid-template-columns:repeat(2,1fr) !important}
-  .btn{padding:9px 12px;font-size:13px}
-  .csym{font-size:28px}
+/* ── Session intro overlay ─────────────────────────────────────────────────── */
+.intro-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100;display:flex;align-items:center;justify-content:center;padding:1rem}
+.intro-card{background:var(--color-background-primary);border-radius:var(--border-radius-xl);padding:1.5rem;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18)}
+.intro-title{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:.25rem}
+.intro-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem}
+.intro-section{margin-bottom:1rem}
+.intro-lbl{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+.intro-row{display:flex;gap:6px;flex-wrap:wrap}
+.intro-opt{font-size:13px;padding:6px 12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation}
+.intro-opt.on{background:#185FA5;color:#E6F1FB;border-color:#185FA5}
+.intro-opt.locked{background:#854F0B;color:#FAEEDA;border-color:#854F0B}
+.intro-start{width:100%;padding:11px;background:#185FA5;color:#E6F1FB;border:none;border-radius:var(--border-radius-md);font-size:15px;font-weight:500;cursor:pointer;margin-top:.5rem}
+.intro-start:hover{background:#0C447C}
+
+/* ── Controls-disabled-mid-session ────────────────────────────────────────── */
+.controls.session-active .tbtn,.controls.session-active .sbtn,.controls.session-active .togbtn,.controls.session-active .dbtn{opacity:.4;pointer-events:none}
+.controls.session-active::after{content:"Settings apply from next progression";font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+
+/* ── Level tab strip ──────────────────────────────────────────────────────── */
+.level-tabs{display:flex;gap:0;margin-bottom:.75rem;border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-secondary)}
+.level-tab{flex:1;padding:9px 4px;font-size:13px;font-weight:500;border:none;background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation;transition:background .15s,color .15s;text-align:center;border-right:0.5px solid var(--color-border-secondary)}
+.level-tab:last-child{border-right:none}
+.level-tab.active{background:var(--color-background-primary);color:var(--color-text-primary)}
+.level-tab.active.l1{border-bottom:2px solid #185FA5;color:#0C447C}
+.level-tab.active.l2{border-bottom:2px solid #0F6E56;color:#085041}
+.level-tab.future{opacity:.4;cursor:not-allowed}
+
+/* ── Level 2 layout ───────────────────────────────────────────────────────── */
+#level2{display:none}
+#level2.active{display:block}
+#level1{display:block}
+#level1.hidden{display:none}
+
+/* ── L2 intro overlay ─────────────────────────────────────────────────────── */
+.l2-intro{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem}
+.l2-intro.show{display:flex}
+.l2-intro-card{background:var(--color-background-primary);border-radius:var(--border-radius-xl);padding:1.5rem;max-width:500px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,0.18);max-height:90vh;overflow-y:auto}
+.l2-intro-title{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:.2rem}
+.l2-intro-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem}
+.l2-intro-sec{margin-bottom:1rem}
+.l2-intro-lbl{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+.l2-intro-row{display:flex;gap:6px;flex-wrap:wrap}
+.l2-iopt{font-size:13px;padding:6px 12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation}
+.l2-iopt.on{background:#0F6E56;color:#E1F5EE;border-color:#0F6E56}
+.l2-iopt.locked{background:#854F0B;color:#FAEEDA;border-color:#854F0B}
+.l2-intro-start{width:100%;padding:11px;background:#0F6E56;color:#E1F5EE;border:none;border-radius:var(--border-radius-md);font-size:15px;font-weight:500;cursor:pointer;margin-top:.5rem}
+.l2-intro-start:hover{background:#085041}
+
+/* ── L2 layout ───────────────────────────────────────────────────────────── */
+#level2{display:none}
+#level2.active{display:block}
+#level1{display:block}
+#level1.hidden{display:none}
+
+/* ── L2 top controls bar ──────────────────────────────────────────────────── */
+.l2-topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:.6rem}
+.l2-topbar-left{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.l2-topbar-right{display:flex;gap:6px;align-items:center}
+.l2-count-row{display:flex;gap:0;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);overflow:hidden}
+.l2-count-btn{padding:5px 11px;font-size:12px;font-weight:500;border:none;background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation;border-right:0.5px solid var(--color-border-secondary)}
+.l2-count-btn:last-child{border-right:none}
+.l2-count-btn.on{background:#0F6E56;color:#E1F5EE}
+
+/* ── L2 progression bar ───────────────────────────────────────────────────── */
+.l2-prog-bar{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.65rem 1rem;margin-bottom:.75rem}
+.l2-prog-key{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:.5rem}
+.l2-bars{display:grid;gap:6px}
+.l2-bar{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:.5rem .6rem;text-align:center;cursor:pointer;touch-action:manipulation;transition:border-color .15s,background .15s;border-top:3px solid transparent}
+.l2-bar.active{border-top-color:#0F6E56;background:var(--color-background-success)}
+.l2-bar.chord-done{border-top-color:#185FA5}
+.l2-bar.arp-done{border-top-color:#3B6D11}
+.l2-bar.bar-c0{border-top-color:#185FA5}
+.l2-bar.bar-c1{border-top-color:#0F6E56}
+.l2-bar.bar-c2{border-top-color:#534AB7}
+.l2-bar.bar-c3{border-top-color:#854F0B}
+.l2-bar-sym{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.l2-bar-num{font-size:10px;color:var(--color-text-secondary);margin-top:1px}
+.l2-bar-stage{font-size:10px;margin-top:2px;color:var(--color-text-tertiary)}
+.l2-bar.active .l2-bar-stage{color:#0F6E56;font-weight:500}
+
+/* ── Sub-tab strip ────────────────────────────────────────────────────────── */
+.l2-subtabs{display:flex;gap:0;margin-bottom:.75rem;border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-secondary)}
+.l2-subtab{flex:1;padding:7px 4px;font-size:12px;font-weight:500;border:none;background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation;text-align:center;border-right:0.5px solid var(--color-border-secondary)}
+.l2-subtab:last-child{border-right:none}
+.l2-subtab.active{background:var(--color-background-primary);color:var(--color-text-primary);border-bottom:2px solid #0F6E56}
+.l2-subtab:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+
+/* ── Dual canvas section ──────────────────────────────────────────────────── */
+.l2-canvas-section{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:.75rem}
+.l2-canvas-section.arp-section{border-color:var(--color-border-tertiary)}
+.l2-section-hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:.6rem}
+.l2-section-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.l2-section-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.l2-pos-select{display:flex;gap:0;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);overflow:hidden}
+.l2-pos-btn{padding:4px 8px;font-size:11px;border:none;background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation;border-right:0.5px solid var(--color-border-secondary)}
+.l2-pos-btn:last-child{border-right:none}
+.l2-pos-btn.on{background:#0F6E56;color:#E1F5EE}
+.l2-pos-btn.locked{background:#854F0B;color:#FAEEDA}
+.l2-chord-active-hdr{font-size:12px;color:var(--color-text-secondary);margin-bottom:.4rem}
+
+/* ── Canvas ───────────────────────────────────────────────────────────────── */
+.l2-fbwrap{overflow-x:auto;padding-bottom:4px}
+.l2-fbwrap canvas{touch-action:none;display:block}
+
+/* ── Chips row ────────────────────────────────────────────────────────────── */
+.l2-chips-row{display:flex;gap:6px;flex-wrap:wrap;margin:.5rem 0}
+
+/* ── Action row ───────────────────────────────────────────────────────────── */
+.l2-action-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:.6rem}
+
+/* ── Legend ───────────────────────────────────────────────────────────────── */
+.l2-legend{display:flex;gap:10px;flex-wrap:wrap;margin:.4rem 0}
+.l2-li{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-text-secondary)}
+.l2-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.l2-line-seg{width:18px;height:2px;border-radius:1px;flex-shrink:0}
+
+/* ── Voice leading summary ────────────────────────────────────────────────── */
+.vl-sum-row{display:flex;align-items:center;gap:8px;padding:.3rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.vl-sum-row:last-child{border-bottom:none}
+
+/* ── Mobile ───────────────────────────────────────────────────────────────── */
+@media(max-width:480px){
+  .l2-bar-sym{font-size:13px}
+  .l2-pos-btn{padding:4px 5px;font-size:10px}
+  .level-tab{font-size:11px;padding:8px 2px}
 }
+/* ── Level 3 ──────────────────────────────────────────────────────────────── */
+#level3{display:none}
+#level3.active{display:block}
+.level-tab.active.l3{border-bottom:2px solid #534AB7;color:#534AB7}
+.l3-family-btn{padding:8px 14px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.l3-family-btn.on{background:#534AB7;color:#EAE9F8;border-color:#534AB7}
+/* ── Level 3 tension step ────────────────────────────────────────────────── */
+.l3-tension-note{display:flex;flex-direction:column;align-items:center;gap:4px}
+.l3-tension-name{font-size:13px;font-weight:600;color:#3B6D11;padding:5px 8px;background:rgba(59,109,17,0.1);border-radius:6px;border:1.5px solid #3B6D11;min-width:36px;text-align:center}
+.l3-tension-name.wrong{color:#854F0B;background:rgba(133,79,11,0.1);border-color:#854F0B}
+.l3-tension-name.correct{color:#3B6D11;background:rgba(59,109,17,0.15);border-color:#3B6D11}
+.l3-iv-btns{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;max-width:110px}
+.l3-iv-btn{font-size:9px;padding:2px 5px;border:0.5px solid var(--color-border-secondary);border-radius:4px;background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;touch-action:manipulation;line-height:1.4}
+.l3-iv-btn.on{background:#534AB7;color:#EAE9F8;border-color:#534AB7;font-weight:600}
+.l3-iv-btn.correct{background:#3B6D11;color:#EAF3DE;border-color:#3B6D11;font-weight:700}
+.l3-iv-btn.wrong{background:#854F0B;color:#FAEEDA;border-color:#854F0B}
+.l3-sub-label{font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px}
+.l3-sub-sym{font-size:18px;font-weight:600;color:#534AB7}
+.l3-sound-label{font-size:11px;color:#534AB7;font-style:italic}
+.l3-ngrid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:.9rem}
+/* ── C3 grid for Level 2 ──────────────────────────────────────────────────── */
+.l2-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:relative;margin-bottom:6px}
+.l2-cell{border-radius:7px;padding:8px}
+.l2-cell-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px}
+.l2-cell-sym{font-size:13px;font-weight:600}
+.l2-cell-fr{font-size:9px;color:var(--color-text-tertiary);font-weight:500}
+.l2-cell-meta{font-size:9px;color:var(--color-text-secondary);margin-bottom:6px}
+.l2-cell-neck{display:flex;align-items:flex-start;gap:2px}
+.l2-cell-slabels{display:flex;flex-direction:column;flex-shrink:0;width:11px}
+.l2-cell-slabel{font-size:6.5px;color:var(--color-text-tertiary);text-align:right;line-height:1}
+.l2-cell-canvas-wrap{flex:1}
+.l2-xrow-badges{display:flex;gap:6px;flex-wrap:wrap;padding:3px 0;margin:2px 0 4px;align-items:center;font-size:9px;color:var(--color-text-tertiary)}
 </style>
 </head>
 <body>
+<!-- Session intro overlay -->
+<div class="intro-overlay" id="introOverlay">
+  <div class="intro-card">
+    <div class="intro-title">Jazz Guitar Study</div>
+    <div class="intro-sub">Choose your level and set preferences before starting.</div>
+    <div class="intro-section">
+      <div class="intro-lbl">Level</div>
+      <div class="intro-row">
+        <button class="intro-opt on" id="iLvl1Btn" onclick="introPickLevel(1)">Level 1 — Quiz</button>
+        <button class="intro-opt" id="iLvl2Btn" onclick="introPickLevel(2)">Level 2 — Layout</button>
+        <button class="intro-opt" id="iLvl3Btn" onclick="introPickLevel(3)">Level 3 — Subs</button>
+      </div>
+    </div>
+    <div id="introL1Settings">
+      <div class="intro-section">
+        <div class="intro-lbl">Tiers</div>
+        <div class="intro-row" id="itierRow"></div>
+      </div>
+      <div class="intro-section">
+        <div class="intro-lbl">Neck position (lock or leave random)</div>
+        <div class="intro-row" id="iposRow"></div>
+      </div>
+      <div class="intro-section">
+        <div class="intro-lbl">Density</div>
+        <div class="intro-row" id="idensRow"></div>
+      </div>
+      <div class="intro-section">
+        <div class="intro-lbl">Split bars</div>
+        <div class="intro-row">
+          <button class="intro-opt" id="isplitBtn" onclick="introToggleSplit()">Simple mode</button>
+          <span style="font-size:11px;color:var(--color-text-secondary);align-self:center" id="isplitHint">anchor chord only</span>
+        </div>
+      </div>
+    </div>
+    <div id="introL2Settings" style="display:none">
+      <div class="intro-section">
+        <div class="intro-lbl">Chords per session</div>
+        <div class="intro-row" id="iL2CountRow"></div>
+      </div>
+      <div class="intro-section">
+        <div class="intro-lbl">Density</div>
+        <div class="intro-row" id="iL2DensRow"></div>
+      </div>
+    </div>
+    <div id="introL3Settings" style="display:none">
+      <div class="intro-section">
+        <div class="intro-lbl">Chords per session</div>
+        <div class="intro-row" id="iL3CountRow"></div>
+      </div>
+      <div class="intro-section">
+        <div class="intro-lbl">Density</div>
+        <div class="intro-row" id="iL3DensRow"></div>
+      </div>
+      <div class="intro-section">
+        <div class="intro-lbl">Substitutions</div>
+        <div class="intro-row" id="iL3SubMode"></div>
+      </div>
+    </div>
+    <button class="intro-start" id="introStartBtn" onclick="startSession()">Start Level 1 →</button>
+  </div>
+</div>
 <div class="app">
-<h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden">Jazz Chord Progression Quiz</h1>
+<h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden">Jazz Guitar Study</h1>
+
+<!-- ── Level tab strip ──────────────────────────────────────────────────── -->
+<div class="level-tabs">
+  <button class="level-tab active l1" id="tabL1" onclick="switchLevel(1)">Level 1 — Quiz</button>
+  <button class="level-tab l2" id="tabL2" onclick="switchLevel(2)">Level 2 — Layout</button>
+  <button class="level-tab l3" id="tabL3" onclick="switchLevel(3)">Level 3 — Subs</button>
+</div>
+
+<!-- ══════════════════════ LEVEL 1 ══════════════════════════════════════ -->
+<div id="level1">
 <div class="hdr">
   <span class="ttl">Jazz progression quiz</span>
   <div class="hdr-btns">
@@ -231,7 +447,7 @@ body{font-family:var(--font-sans);background:var(--color-background-tertiary);co
 </div>
 <div class="controls">
   <div class="ctrl-row"><span class="ctrl-lbl">Tiers</span><div id="tierRow"></div></div>
-  <div class="ctrl-row"><span class="ctrl-lbl">Shape</span><div id="shapeRow"></div><button class="togbtn" id="approachBtn" onclick="toggleApproach()">position only</button></div>
+  <div class="ctrl-row"><span class="ctrl-lbl">Position</span><div id="posRow"></div><button class="togbtn" id="approachBtn" onclick="toggleApproach()">position only</button></div>
   <div class="ctrl-row"><span class="ctrl-lbl">Density</span><div id="densityRow"></div></div>
   <div class="ctrl-row">
     <span class="ctrl-lbl">Split bars</span>
@@ -260,7 +476,7 @@ body{font-family:var(--font-sans);background:var(--color-background-tertiary);co
   <div class="form-bar" id="formBar" style="display:none"> </div>
 </div>
 <div class="card" id="quizCard">
-  <div class="spill" id="stagePill">Stage 1 of 2 — spell the chord</div>
+  <div class="spill" id="stagePill">Stage 1 — spell the chord</div>
   <div class="csym" id="csym">—</div>
   <div class="csub" id="csub"> </div>
   <div class="split-ctx" id="splitCtx" style="display:none"> </div>
@@ -274,7 +490,7 @@ body{font-family:var(--font-sans);background:var(--color-background-tertiary);co
   <div class="msg" id="s1msg"></div>
   <div id="fbSec" style="display:none">
     <div class="div"></div>
-    <div class="spill">Stage 2 of 2 — fretboard placement</div>
+    <div class="spill" id="fbStagePill">Stage 2a — chord voicing</div>
     <div class="csub" id="fbInstr" style="margin-bottom:.75rem"> </div>
     <div class="fbnote" id="fbNote"></div>
     <div class="chips" id="chips"></div>
@@ -289,10 +505,11 @@ body{font-family:var(--font-sans);background:var(--color-background-tertiary);co
       <div class="li"><div class="ld" style="background:#3B6D11"></div>correct</div>
       <div class="li"><div class="ld" style="background:#A32D2D"></div>wrong note</div>
       <div class="li"><div class="ld" style="background:#EF9F27;border:1px solid #854F0B"></div>out of zone</div>
+      <div class="li" id="legLine" style="display:none"><div class="ld" style="background:linear-gradient(90deg,#185FA5,#3B6D11);border-radius:2px;height:3px"></div>pitch order</div>
     </div>
     <div class="msg inf on" id="fbMsg" style="margin-top:.75rem"> </div>
     <div class="nxrow">
-      <button class="btn pri" id="chkFbBtn" onclick="chkFrets()" disabled>Check frets</button>
+      <button class="btn pri" id="chkFbBtn" onclick="chkFrets()" disabled>Check voicing</button>
       <button class="btn" onclick="clearTaps()">Clear</button>
       <button class="btn" id="nxtChordBtn" style="display:none" onclick="advanceChord()">Next chord</button>
     </div>
@@ -314,13 +531,256 @@ body{font-family:var(--font-sans);background:var(--color-background-tertiary);co
     <button class="btn red" onclick="resetTracker()">Reset stats</button>
   </div>
 </div>
+</div><!-- end #level1 -->
+
+<!-- ══════════════════════ LEVEL 2 ══════════════════════════════════════ -->
+<div id="level2">
+
+<!-- L2 intro overlay -->
+<div class="l2-intro" id="l2IntroOverlay">
+  <div class="l2-intro-card">
+    <div class="l2-intro-title">Level 2 — Chord &amp; Arpeggio Layout</div>
+    <div class="l2-intro-sub">Map chord voicings and arpeggios across a progression. Set your preferences to start.</div>
+    <div class="l2-intro-sec">
+      <div class="l2-intro-lbl">Chords to work (per session)</div>
+      <div class="l2-intro-row" id="l2IChordCount"></div>
+    </div>
+    <div class="l2-intro-sec">
+      <div class="l2-intro-lbl">Chord voicing position</div>
+      <div class="l2-intro-row" id="l2IChordPos"></div>
+    </div>
+    <div class="l2-intro-sec">
+      <div class="l2-intro-lbl">Arpeggio position</div>
+      <div class="l2-intro-row" id="l2IArpPos"></div>
+    </div>
+    <div class="l2-intro-sec">
+      <div class="l2-intro-lbl">Density</div>
+      <div class="l2-intro-row" id="l2IDens"></div>
+    </div>
+    <button class="l2-intro-start" onclick="l2StartSession()">Start Level 2 →</button>
+  </div>
 </div>
+
+<!-- Top controls bar (visible during session) -->
+<div class="l2-topbar" id="l2TopBar" style="display:none">
+  <div class="l2-topbar-left">
+    <span style="font-size:12px;color:var(--color-text-secondary)">Chords:</span>
+    <div class="l2-count-row" id="l2CountRow"></div>
+    <button class="btn" style="font-size:11px;padding:4px 9px" onclick="l2ShowIntro()">Settings</button>
+  </div>
+  <div class="l2-topbar-right">
+    <button class="btn grn" style="font-size:11px;padding:4px 9px" onclick="l2NewProg()">New progression</button>
+  </div>
+</div>
+
+<!-- Progression bar -->
+<div class="l2-prog-bar" id="l2ProgBar" style="display:none">
+  <div class="l2-prog-key" id="l2ProgKey"> </div>
+  <div class="l2-bars" id="l2Bars"></div>
+</div>
+
+<!-- Sub-tab strip -->
+<div class="l2-subtabs" id="l2SubTabs" style="display:none">
+  <button class="l2-subtab active" id="l2SubA" onclick="l2SetPhase('chord')">2a — Chord voicing</button>
+  <button class="l2-subtab" id="l2SubB" id="l2SubB" onclick="l2SetPhase('arp')">2b — Arpeggio</button>
+</div>
+
+<!-- ── Chord canvas section ───────────────────────────────────────────── -->
+<div class="l2-canvas-section" id="l2ChordSection" style="display:none">
+  <div class="l2-section-hdr">
+    <span class="l2-section-title">Chord voicings <span style="font-size:11px;font-weight:400;color:var(--color-text-tertiary)">(position = starting reference — voicings may travel)</span></span>
+    <div class="l2-section-meta">
+      <div class="l2-pos-select" id="l2ChordPosRow"></div>
+      <span class="badge gr" id="l2ChordSpan">span: —</span>
+    </div>
+  </div>
+  <div class="l2-chord-active-hdr" id="l2ChordActiveHdr"> </div>
+  <div class="l2-chips-row" id="l2ChordChips"></div>
+  <!-- C3 grid — cells built by JS -->
+  <div class="l2-grid" id="l2ChordGrid"></div>
+  <!-- Cross-row VL badges (bar 2→3) -->
+  <div class="l2-xrow-badges" id="l2ChordXrow"></div>
+  <div class="l2-legend">
+    <div class="l2-li"><div class="l2-dot" style="background:#185FA5"></div>bar 1</div>
+    <div class="l2-li"><div class="l2-dot" style="background:#0F6E56"></div>bar 2</div>
+    <div class="l2-li" id="l2CLeg3" style="display:none"><div class="l2-dot" style="background:#534AB7"></div>bar 3</div>
+    <div class="l2-li" id="l2CLeg4" style="display:none"><div class="l2-dot" style="background:#854F0B"></div>bar 4</div>
+    <div class="l2-li"><div class="l2-dot" style="background:#A32D2D"></div>wrong note</div>
+    <div class="l2-li" id="l2CLegVL" style="display:none"><div class="l2-line-seg" style="background:#3B6D11"></div>step ✓</div>
+    <div class="l2-li" id="l2CLegVLamb" style="display:none"><div class="l2-line-seg" style="background:#EF9F27"></div>leap</div>
+    <div class="l2-li" style="color:var(--color-text-tertiary);font-style:italic">zone = reference</div>
+  </div>
+  <div class="msg" id="l2ChordMsg" style="margin-top:.4rem"></div>
+  <div class="l2-action-row">
+    <button class="btn pri" id="l2ChordChkBtn" onclick="l2CheckChord()" disabled>Check voicing</button>
+    <button class="btn" onclick="l2ClearChordTaps()">Clear</button>
+    <button class="btn" id="l2ChordNextBtn" style="display:none" onclick="l2AdvanceChord()">Next chord →</button>
+    <button class="btn grn" id="l2ChordDoneBtn" style="display:none" onclick="l2SetPhase('arp')">All voiced → arpeggios</button>
+  </div>
+</div>
+
+<!-- ── Arpeggio canvas section ────────────────────────────────────────── -->
+<div class="l2-canvas-section arp-section" id="l2ArpSection" style="display:none">
+  <div class="l2-section-hdr">
+    <span class="l2-section-title">Arpeggios <span style="font-size:11px;font-weight:400;color:var(--color-text-tertiary)">(position = reference — no penalty for leaving)</span></span>
+    <div class="l2-section-meta">
+      <div class="l2-pos-select" id="l2ArpPosRow"></div>
+      <span class="badge gr" id="l2ArpSpan">span: —</span>
+      <span class="badge am" id="l2ArpDirBadge" style="display:none"> </span>
+    </div>
+  </div>
+  <div class="l2-chord-active-hdr" id="l2ArpActiveHdr"> </div>
+  <div class="l2-chips-row" id="l2ArpChips"></div>
+  <!-- C3 grid — cells built by JS -->
+  <div class="l2-grid" id="l2ArpGrid"></div>
+  <!-- Cross-row VL badges (bar 2→3) -->
+  <div class="l2-xrow-badges" id="l2ArpXrow"></div>
+  <div class="l2-legend">
+    <div class="l2-li"><div class="l2-dot" style="background:#185FA5"></div>bar 1</div>
+    <div class="l2-li"><div class="l2-dot" style="background:#0F6E56"></div>bar 2</div>
+    <div class="l2-li" id="l2ALeg3" style="display:none"><div class="l2-dot" style="background:#534AB7"></div>bar 3</div>
+    <div class="l2-li" id="l2ALeg4" style="display:none"><div class="l2-dot" style="background:#854F0B"></div>bar 4</div>
+    <div class="l2-li"><div class="l2-line-seg" style="background:linear-gradient(90deg,#185FA5,#0F6E56)"></div>pitch line</div>
+    <div class="l2-li" id="l2ALegVL" style="display:none"><div class="l2-line-seg" style="background:#3B6D11"></div>✓ step</div>
+    <div class="l2-li" id="l2ALegVLamb" style="display:none"><div class="l2-line-seg" style="background:#EF9F27"></div>leap</div>
+    <div class="l2-li" style="color:#B8860B;font-weight:600;font-size:10px">✓✓ = 7→3</div>
+  </div>
+  <div class="msg" id="l2ArpMsg" style="margin-top:.4rem"></div>
+  <div class="l2-action-row">
+    <button class="btn pri" id="l2ArpChkBtn" onclick="l2CheckArp()" disabled>Check arpeggio</button>
+    <button class="btn" onclick="l2ClearArpTaps()">Clear</button>
+    <button class="btn" id="l2ArpNextBtn" style="display:none" onclick="l2AdvanceArp()">Next arpeggio →</button>
+    <button class="btn grn" id="l2ArpDoneBtn" style="display:none" onclick="l2ShowSummary()">View summary</button>
+  </div>
+</div>
+
+<!-- Voice leading summary -->
+<div class="card" id="l2SummaryCard" style="display:none">
+  <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:.25rem">Voice leading summary</div>
+  <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:.75rem" id="l2SumMeta"> </div>
+  <div id="l2SumContent"></div>
+  <div style="margin-top:.75rem;display:flex;gap:8px">
+    <button class="btn grn" onclick="l2NewProg()">New progression</button>
+  </div>
+</div>
+
+</div><!-- end #level2 -->
+
+<!-- ══════════════════════ LEVEL 3 ══════════════════════════════════════ -->
+<div id="level3">
+
+<!-- Top controls bar -->
+<div class="l2-topbar" id="l3TopBar" style="display:none">
+  <div class="l2-topbar-left">
+    <span style="font-size:12px;color:var(--color-text-secondary)">Chords:</span>
+    <div class="l2-count-row" id="l3CountRow"></div>
+    <button class="btn" style="font-size:11px;padding:4px 9px" onclick="l3ShowSettings()">Settings</button>
+  </div>
+  <div class="l2-topbar-right">
+    <button class="btn grn" style="font-size:11px;padding:4px 9px" onclick="l3NewProg()">New progression</button>
+  </div>
+</div>
+
+<!-- Progression bar -->
+<div class="l2-prog-bar" id="l3ProgBar" style="display:none">
+  <div class="l2-prog-key" id="l3ProgKey"> </div>
+  <div class="l2-bars" id="l3Bars"></div>
+</div>
+
+<!-- Sub-tab strip -->
+<div class="l2-subtabs" id="l3SubTabs" style="display:none">
+  <button class="l2-subtab active" id="l3SubA" onclick="l3SetPhase('spell')">3a — Spell sub</button>
+  <button class="l2-subtab" id="l3SubB" onclick="l3SetPhase('fretboard')">3b — Sub fretboard</button>
+</div>
+
+<!-- ── 3a Spell section ──────────────────────────────────────────────────── -->
+<div class="l2-canvas-section" id="l3SpellSection" style="display:none">
+  <div class="l2-section-hdr">
+    <span class="l2-section-title">Substitution spelling</span>
+  </div>
+  <div class="l2-chord-active-hdr" id="l3SpellActiveHdr"> </div>
+  <div style="margin-bottom:.75rem">
+    <div class="l3-sub-label">Original chord</div>
+    <div style="font-size:28px;font-weight:500;color:var(--color-text-primary)" id="l3OrigSym">—</div>
+    <div style="font-size:12px;color:var(--color-text-secondary)" id="l3OrigRoman"> </div>
+  </div>
+  <div style="margin-bottom:.75rem">
+    <div class="l3-sub-label">Select substitution family</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap" id="l3FamilyRow"></div>
+  </div>
+  <div id="l3SubInfo" style="display:none;margin-bottom:.75rem">
+    <div class="l3-sub-label" id="l3SubLabelTxt"> </div>
+    <div class="l3-sub-sym" id="l3SubSym"> </div>
+    <div class="l3-sound-label" id="l3SoundLabel"> </div>
+  </div>
+  <div id="l3NoteGridWrap" style="display:none">
+    <div class="l3-sub-label" style="margin-top:.5rem" id="l3NoteGridLbl">Spell the substitute chord</div>
+    <div class="l3-ngrid" id="l3NoteGrid"></div>
+  </div>
+  <!-- Step B: tension identification — shown after correct spell -->
+  <div id="l3TensionWrap" style="display:none;margin-top:.5rem">
+    <div class="l3-sub-label">For each note, identify the interval it creates over <span id="l3TensionOrigSym" style="color:var(--color-text-primary);font-weight:600"></span></div>
+    <div id="l3TensionGrid" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:.5rem"></div>
+  </div>
+  <div class="msg" id="l3SpellMsg" style="margin-top:.4rem"></div>
+  <div class="l2-action-row">
+    <button class="btn pri" id="l3SpellChkBtn" onclick="l3CheckSpell()" disabled>Check spelling</button>
+    <button class="btn" id="l3SpellClearBtn" onclick="l3ClearSpell()">Clear</button>
+    <button class="btn pri" id="l3TensionChkBtn" onclick="l3CheckTensions()" disabled style="display:none">Check tensions</button>
+    <button class="btn" id="l3SpellNextBtn" style="display:none" onclick="l3AdvanceSpell()">Next chord →</button>
+    <button class="btn grn" id="l3SpellDoneBtn" style="display:none" onclick="l3SetPhase('fretboard')">All spelled → fretboard</button>
+  </div>
+</div>
+
+<!-- ── 3b Fretboard section ──────────────────────────────────────────────── -->
+<div class="l2-canvas-section" id="l3FretSection" style="display:none">
+  <div class="l2-section-hdr">
+    <span class="l2-section-title">Substitute arpeggio</span>
+    <div class="l2-section-meta">
+      <div class="l2-pos-select" id="l3FretPosRow"></div>
+      <span class="badge gr" id="l3FretSpan">span: —</span>
+      <span class="badge am" id="l3FretDirBadge" style="display:none"> </span>
+    </div>
+  </div>
+  <div class="l2-chord-active-hdr" id="l3FretActiveHdr"> </div>
+  <div class="l2-chips-row" id="l3FretChips"></div>
+  <div class="l2-grid" id="l3FretGrid"></div>
+  <div class="l2-xrow-badges" id="l3FretXrow"></div>
+  <div class="l2-legend">
+    <div class="l2-li"><div class="l2-dot" style="background:#534AB7"></div>sub chord</div>
+    <div class="l2-li"><div class="l2-dot" style="background:#A32D2D"></div>wrong note</div>
+    <div class="l2-li"><div class="l2-line-seg" style="background:linear-gradient(90deg,#534AB7,#534AB788)"></div>pitch line</div>
+  </div>
+  <div class="msg" id="l3FretMsg" style="margin-top:.4rem"></div>
+  <div class="l2-action-row">
+    <button class="btn pri" id="l3FretChkBtn" onclick="l3CheckFret()" disabled>Check arpeggio</button>
+    <button class="btn" onclick="l3ClearFretTaps()">Clear</button>
+    <button class="btn" id="l3FretNextBtn" style="display:none" onclick="l3AdvanceFret()">Next arpeggio →</button>
+    <button class="btn grn" id="l3FretDoneBtn" style="display:none" onclick="l3ShowSummary()">View summary</button>
+  </div>
+</div>
+
+<!-- Summary -->
+<div class="card" id="l3SummaryCard" style="display:none">
+  <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:.25rem">Substitution summary</div>
+  <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:.75rem" id="l3SumMeta"> </div>
+  <div id="l3SumContent"></div>
+  <div style="margin-top:.75rem;display:flex;gap:8px">
+    <button class="btn grn" onclick="l3NewProg()">New progression</button>
+  </div>
+</div>
+
+</div><!-- end #level3 -->
+</div><!-- end .app -->
 
 <script>
 // ── All music data and logic from v14, unchanged ────────────────────────────
 const NN=["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
 const OM={1:40,2:45,3:50,4:55,5:59,6:64};
-const CR={A:[1,5],G:[4,8],E:[5,10],C:[8,12],D:[10,14]};
+const CR={A:[1,5],G:[4,8],E:[5,10],D:[10,14]};  // CAGED ranges — used for shape detection only
+// Neck positions: index finger fret → 4-fret span [lo, hi]
+const POSITIONS={Open:[0,4],"2nd":[2,5],"5th":[5,8],"7th":[7,10],"9th":[9,12],"12th":[12,15]};
+const POS_LABELS=["Open","2nd","5th","7th","9th","12th"];
 const SL=["E","A","D","G","B","e"];
 const FD=[3,5,7,9,12];
 const NC_MAP={"C":0,"Db":1,"D":2,"Eb":3,"E":4,"F":5,"Gb":6,"G":7,"Ab":8,"A":9,"Bb":10,"B":11};
@@ -375,17 +835,16 @@ const FORMS={
 const STANDALONE_IDS=["maj_251","min_251","turnaround","min_turn","backdoor","atrain","blues_IV","iv_ivm","stray_cat","modal_min","rhy_bridge","desc_251s","coltrane"];
 const KEY_W={"C":8,"F":9,"Bb":10,"Eb":9,"Ab":8,"Db":6,"Gb":2,"B":3,"E":3,"A":4,"D":5,"G":7};
 const CYCLE4=["C","F","Bb","Eb","Ab","Db","Gb","B","E","A","D","G"];
-const SHAPES=["A","G","E","C","D"];
 const DENSITY=["basic","extended","altered"];
 const DENSITY_IDX={"basic":0,"extended":1,"altered":2,"random":-1};
 
 // ── localStorage persistence ───────────────────────────────────────────────
-const LS_KEY="jazzQuiz_v14";
+const LS_KEY="jazzQuiz_v15";
 function saveState(){
   try{localStorage.setItem(LS_KEY,JSON.stringify({
     score:S.score,progs:S.progs,streak:S.streak,
     tracker:S.tracker,keyDeck:S.keyDeck,
-    tiers:S.tiers,lockedShape:S.lockedShape,
+    tiers:S.tiers,lockedPos:S.lockedPos,
     lockedDensity:S.lockedDensity,
     approachFrets:S.approachFrets,
     splitBarMode:S.splitBarMode,
@@ -398,7 +857,7 @@ function loadState(){
     const d=JSON.parse(raw);
     S.score=d.score||0;S.progs=d.progs||0;S.streak=d.streak||0;
     S.tracker=d.tracker||{};S.keyDeck=d.keyDeck||[];
-    S.tiers=d.tiers||[1];S.lockedShape=d.lockedShape||null;
+    S.tiers=d.tiers||[1];S.lockedPos=d.lockedPos||null;
     S.lockedDensity=d.lockedDensity||"random";
     S.approachFrets=d.approachFrets||false;
     S.splitBarMode=d.splitBarMode||false;
@@ -407,13 +866,13 @@ function loadState(){
 }
 
 let S={
-  tiers:[1],lockedShape:null,approachFrets:false,lockedDensity:"random",splitBarMode:false,
+  tiers:[1],lockedPos:null,approachFrets:false,lockedDensity:"random",splitBarMode:false,
   chordFilter:Object.fromEntries(Object.keys(CHORD_FAMILIES).map(f=>[f,true])),
   score:0,progs:0,streak:0,
-  currentForm:null,formSectionIdx:0,formKey:null,formShape:null,formLog:[],
+  currentForm:null,formSectionIdx:0,formKey:null,formPos:null,formLog:[],
   prog:null,chordIdx:0,progLog:[],keyDeck:[],
-  q:null,sel:new Set(),stage:1,taps:[],spelledOk:false,fbDone:false,
-  tracker:{},showingReview:false,showingFilter:false,
+  q:null,sel:new Set(),stage:1,fbSubStage:0,taps:[],spelledOk:false,fbDone:false,spellRevealed:false,
+  tracker:{},showingReview:false,showingFilter:false,sessionStarted:false,
 };
 
 // Load persisted state before first render
@@ -428,7 +887,7 @@ function trackFb(q){if(!S.tracker[q])S.tracker[q]={seen:0,spellPassed:0,fbPassed
 function getWeakFamilies(){const weak=new Set();for(const[fam,quals] of Object.entries(CHORD_FAMILIES)){let seen=0,passed=0;quals.forEach(q=>{if(S.tracker[q]){seen+=S.tracker[q].seen;passed+=S.tracker[q].fbPassed;}});if(seen>=3&&passed/seen<0.6)weak.add(fam);}return weak;}
 function buildKeyDeck(){let d=[];CYCLE4.forEach(k=>{for(let i=0;i<KEY_W[k];i++)d.push(k);});for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]];}return d;}
 
-function buildSection(pid,key,shape,di){
+function buildSection(pid,key,pos,di){
   const tmpl=PROGS[pid];const tonic=NC_MAP[key];
   const chords=tmpl.chords.map(([deg,roman,variants,split,skipSimple,splitLabel])=>{
     const baseDeg=deg.split("/")[0];const rootCls=(tonic+DEG[baseDeg])%12;const rootName=NC_NAME[rootCls];const quality=variants[di];
@@ -438,13 +897,15 @@ function buildSection(pid,key,shape,di){
     const fbTones=(FB_IV[quality]||[]).map((iv,i)=>{const cls=((rootCls+iv)%12+12)%12;return{name:NC_NAME[cls],cls,interval:(FB_LBL[quality]||[])[i]||""};});
     const fbNames=[...new Set(fbTones.map(t=>t.name))];
     const skippedLbls=(Q_LBL[quality]||[]).filter((_,i)=>!(FB_IV[quality]||[]).includes((Q_IV[quality]||[])[i]));
-    return{root:rootName,quality,roman,symbol:makeSym(rootName,quality),spellTones,spellNames,spellMap,fbTones,fbNames,skippedLbls,slash:deg.includes("/"),filtered,split,skipSimple,splitLabel};
+    // Detect CAGED shape from root position within neck position
+    const[pLo]=POSITIONS[pos]||[0,4];const cagedShape=detectCaged(rootCls,pLo);
+    return{root:rootName,quality,roman,symbol:makeSym(rootName,quality),spellTones,spellNames,spellMap,fbTones,fbNames,skippedLbls,cagedShape,slash:deg.includes("/"),filtered,split,skipSimple,splitLabel};
   });
-  return{id:pid,name:tmpl.name,key,density:DENSITY[di],shape,chords,tier:tmpl.tier};
+  return{id:pid,name:tmpl.name,key,density:DENSITY[di],pos,chords,tier:tmpl.tier};
 }
 
 function buildProg(){
-  if(S.currentForm){const form=FORMS[S.currentForm];const pid=form.sectionIds[S.formSectionIdx];const di=S.lockedDensity==="random"?(Math.random()<0.5?0:Math.random()<0.6?1:2):DENSITY_IDX[S.lockedDensity];return buildSection(pid,S.formKey,S.formShape,di);}
+  if(S.currentForm){const form=FORMS[S.currentForm];const pid=form.sectionIds[S.formSectionIdx];const di=S.lockedDensity==="random"?(Math.random()<0.5?0:Math.random()<0.6?1:2):DENSITY_IDX[S.lockedDensity];return buildSection(pid,S.formKey,S.formPos,di);}
   if(!S.keyDeck.length)S.keyDeck=buildKeyDeck();
   const key=S.keyDeck.pop();
   const standPool=STANDALONE_IDS.filter(id=>S.tiers.includes(PROGS[id].tier));
@@ -455,13 +916,13 @@ function buildProg(){
   const total=weights.reduce((a,b)=>a+b,0);let r=Math.random()*total;let chosen=pool[pool.length-1];
   for(let i=0;i<pool.length;i++){r-=weights[i];if(r<=0){chosen=pool[i];break;}}
   const di=S.lockedDensity==="random"?(Math.random()<0.5?0:Math.random()<0.6?1:2):DENSITY_IDX[S.lockedDensity];
-  const shape=S.lockedShape||rnd(SHAPES);
-  if(chosen.startsWith("FORM:")){const fid=chosen.slice(5);S.currentForm=fid;S.formSectionIdx=0;S.formKey=key;S.formShape=shape;S.formLog=[];return buildSection(FORMS[fid].sectionIds[0],key,shape,di);}
-  S.currentForm=null;return buildSection(chosen,key,shape,di);
+  const pos=S.lockedPos||rnd(POS_LABELS);
+  if(chosen.startsWith("FORM:")){const fid=chosen.slice(5);S.currentForm=fid;S.formSectionIdx=0;S.formKey=key;S.formPos=pos;S.formLog=[];return buildSection(FORMS[fid].sectionIds[0],key,pos,di);}
+  S.currentForm=null;return buildSection(chosen,key,pos,di);
 }
 
 function initTiers(){const el=document.getElementById("tierRow");el.innerHTML="";["T1","T2","T3","T4"].forEach((lbl,i)=>{const t=i+1;const b=document.createElement("button");b.className="tbtn"+(S.tiers.includes(t)?" on":"");b.textContent=lbl;b.onclick=()=>{if(S.tiers.includes(t)){if(S.tiers.length===1)return;S.tiers=S.tiers.filter(x=>x!==t);}else S.tiers=[...S.tiers,t];document.querySelectorAll(".tbtn").forEach((b2,j)=>b2.classList.toggle("on",S.tiers.includes(j+1)));saveState();};el.appendChild(b);});}
-function initShapes(){const el=document.getElementById("shapeRow");el.innerHTML="";SHAPES.forEach(sh=>{const b=document.createElement("button");b.className="sbtn"+(S.lockedShape===sh?" locked":"");b.id="sbtn_"+sh;b.textContent=sh;b.onclick=()=>{S.lockedShape=S.lockedShape===sh?null:sh;SHAPES.forEach(s=>document.getElementById("sbtn_"+s).classList.toggle("locked",S.lockedShape===s));saveState();};el.appendChild(b);});}
+function initPos(){const el=document.getElementById("posRow");el.innerHTML="";POS_LABELS.forEach(p=>{const b=document.createElement("button");b.className="sbtn"+(S.lockedPos===p?" locked":"");b.id="pbtn_"+p;b.textContent=p;b.onclick=()=>{S.lockedPos=S.lockedPos===p?null:p;POS_LABELS.forEach(s=>{const btn=document.getElementById("pbtn_"+s);if(btn)btn.classList.toggle("locked",S.lockedPos===s);});saveState();};el.appendChild(b);});}
 function initDensity(){const el=document.getElementById("densityRow");el.innerHTML="";[["random","random"],["basic","basic"],["extended","extended"],["altered","altered"]].forEach(([val,lbl])=>{const b=document.createElement("button");b.className="dbtn"+(S.lockedDensity===val?" on":"");b.textContent=lbl;b.onclick=()=>{S.lockedDensity=val;document.querySelectorAll(".dbtn").forEach((b2,k)=>b2.classList.toggle("on",[["random","random"],["basic","basic"],["extended","extended"],["altered","altered"]][k][0]===val));saveState();};el.appendChild(b);});}
 function initFilter(){const el=document.getElementById("filterGrid");el.innerHTML="";Object.keys(CHORD_FAMILIES).forEach(fam=>{const b=document.createElement("button");b.className="fbtn"+(S.chordFilter[fam]?" on":"");b.id="fbtn_"+fam;b.textContent=FAMILY_LABELS[fam];b.onclick=()=>{S.chordFilter[fam]=!S.chordFilter[fam];b.classList.toggle("on",S.chordFilter[fam]);saveState();};el.appendChild(b);});}
 function filterAll(on){Object.keys(CHORD_FAMILIES).forEach(fam=>{S.chordFilter[fam]=on;document.getElementById("fbtn_"+fam).classList.toggle("on",on);});saveState();}
@@ -474,7 +935,7 @@ function togNote(n){if(S.stage!==1||S.spelledOk)return;const btn=document.getEle
 function renderProgHeader(){
   const p=S.prog;
   document.getElementById("progTitle").textContent=p.name+" — "+p.key;
-  document.getElementById("progMeta").textContent=p.density+" · "+(S.lockedShape?"🔒 ":"")+p.shape+"-shape · chord "+(S.chordIdx+1)+" of "+p.chords.length;
+  document.getElementById("progMeta").textContent=p.density+" · "+(S.lockedPos?"🔒 ":"")+p.pos+" position · chord "+(S.chordIdx+1)+" of "+p.chords.length;
   const pills=document.getElementById("progPills");pills.innerHTML="";
   let i=0;
   while(i<p.chords.length){
@@ -496,14 +957,17 @@ function loadChordFromProg(){
   while(S.chordIdx<S.prog.chords.length){const c=S.prog.chords[S.chordIdx];if(c.filtered||(c.skipSimple&&!S.splitBarMode)){S.progLog.push({chord:c,spellOk:true,fbOk:true,warnings:[],auto:true});S.chordIdx++;}else break;}
   if(S.chordIdx>=S.prog.chords.length){showSummary();return;}
   const chord=S.prog.chords[S.chordIdx];
-  S.q=chord;S.sel=new Set();S.stage=1;S.taps=[];S.spelledOk=false;S.fbDone=false;
+  S.q=chord;S.sel=new Set();S.stage=1;S.fbSubStage=0;S.taps=[];S.spelledOk=false;S.fbDone=false;S.spellRevealed=false;
+  // Remove continue button if lingering
+  const cb=document.getElementById("continueBtn");if(cb)cb.remove();
   trackSeen(chord.quality);
-  document.getElementById("stagePill").textContent="Stage 1 of 2 — spell the chord";
+  document.getElementById("stagePill").textContent="Stage 1 — spell the chord";
+  document.getElementById("chkSpBtn").style.display="inline-block";
   document.getElementById("csym").textContent=chord.symbol;
   document.getElementById("csub").textContent=chord.roman+" · "+chord.spellTones.length+" notes · "+S.prog.density;
-  const ctx=document.getElementById("splitCtx");
-  if(chord.split&&chord.splitLabel){ctx.style.display="inline-block";ctx.textContent="Split bar · "+chord.splitLabel+(chord.skipSimple?" · approach chord":" · resolution chord");}
-  else ctx.style.display="none";
+  const ctx2=document.getElementById("splitCtx");
+  if(chord.split&&chord.splitLabel){ctx2.style.display="inline-block";ctx2.textContent="Split bar · "+chord.splitLabel+(chord.skipSimple?" · approach chord":" · resolution chord");}
+  else ctx2.style.display="none";
   document.getElementById("s1msg").className="msg";document.getElementById("s1msg").textContent="";
   document.getElementById("chkSpBtn").disabled=true;document.getElementById("hintBtn").disabled=false;
   document.getElementById("fbSec").style.display="none";
@@ -520,8 +984,28 @@ function chkSpell(){
     if(correct.has(n)&&S.sel.has(n)){btn.className="nb cor";lbl.className="il lit";lbl.textContent=q.spellMap[n]||"";}
     else if(!correct.has(n)&&S.sel.has(n)){btn.className="nb wrg";ok=false;}
     else if(correct.has(n)&&!S.sel.has(n)){btn.className="nb mis";ok=false;}});
-  if(ok){S.spelledOk=true;S.stage=2;trackSpell(q.quality);setMsg("s1msg","ok","Correct — "+[...new Set(q.spellNames)].join(" ")+" · Now place on the fretboard.");document.getElementById("chkSpBtn").disabled=true;document.getElementById("hintBtn").disabled=true;openFb();}
-  else{setMsg("s1msg","no","Not quite. Orange = missed, red = wrong. Try again.");S.sel=new Set();S.streak=0;updStats();}
+  if(ok){
+    S.spelledOk=true;S.stage=2;trackSpell(q.quality);
+    setMsg("s1msg","ok","Correct — "+[...new Set(q.spellNames)].join(" ")+" · Now place on the fretboard.");
+    document.getElementById("chkSpBtn").disabled=true;document.getElementById("hintBtn").disabled=true;openFb();
+  }else{
+    // Show correct answer and allow proceeding — mark as needs work
+    S.spellRevealed=true;
+    // Reveal correct tones in the grid
+    NN.forEach(n=>{const btn=document.getElementById("nb_"+n);const lbl=document.getElementById("il_"+n);
+      if(correct.has(n)&&!S.sel.has(n)){btn.className="nb mis";lbl.className="il lit";lbl.textContent=q.spellMap[n]||"";}
+    });
+    setMsg("s1msg","wn","Not quite — correct tones shown. Continue to fretboard (marked needs work).");
+    document.getElementById("chkSpBtn").style.display="none";
+    document.getElementById("hintBtn").disabled=true;
+    // Add a "Continue to fretboard" button
+    const arow=document.querySelector(".arow");
+    if(!document.getElementById("continueBtn")){
+      const cb=document.createElement("button");cb.className="btn";cb.id="continueBtn";cb.textContent="Continue to fretboard";
+      cb.onclick=()=>{cb.remove();document.getElementById("chkSpBtn").style.display="inline-block";document.getElementById("chkSpBtn").disabled=true;S.stage=2;S.spelledOk=false;openFb();};
+      arow.insertBefore(cb,arow.firstChild);
+    }
+  }
 }
 function hint(){const un=S.q.spellTones.find(t=>!S.sel.has(t.name));if(!un)return;S.sel.add(un.name);const b=document.getElementById("nb_"+un.name);b.style.background="#5F5E5A";b.style.color="#F1EFE8";b.style.borderColor="#5F5E5A";b.style.fontWeight="500";document.getElementById("chkSpBtn").disabled=false;}
 
@@ -529,18 +1013,29 @@ function hint(){const un=S.q.spellTones.find(t=>!S.sel.has(t.name));if(!un)retur
 function getDPR(){return window.devicePixelRatio||1;}
 function getNF(){return window.innerWidth<420?12:15;}
 
-function getZone(){const[lo,hi]=CR[S.prog.shape];return S.approachFrets?[Math.max(0,lo-1),Math.min(getNF(),hi+1)]:[lo,hi];}
+function getPosRange(){return POSITIONS[S.prog.pos]||[0,4];}
+function getZone(){const[lo,hi]=getPosRange();return S.approachFrets?[Math.max(0,lo-1),Math.min(getNF(),hi+1)]:[lo,hi];}
+// Detect CAGED shape from root pitch class vs position low fret
+function detectCaged(rootCls,posLo){
+  // Find which CAGED range the position lo fret best maps to
+  for(const[sh,[lo,hi]] of Object.entries(CR)){if(posLo>=lo&&posLo<=hi)return sh;}
+  return "–";
+}
 function openFb(){
-  document.getElementById("fbSec").style.display="block";const q=S.q;const[lo,hi]=CR[S.prog.shape];
-  document.getElementById("cagedBadge").textContent=S.prog.shape+"-shape · frets "+lo+"–"+hi;
+  S.fbSubStage=1;// 1=voicing, 2=arpeggio
+  document.getElementById("fbSec").style.display="block";const q=S.q;const[lo,hi]=getPosRange();
+  document.getElementById("fbStagePill").textContent="Stage 2a — chord voicing";
+  document.getElementById("cagedBadge").textContent=S.prog.pos+" position · frets "+lo+"–"+hi+(q.cagedShape?" ("+q.cagedShape+"-shape)":"");
   document.getElementById("approachBadge").style.display=S.approachFrets?"inline-block":"none";
-  document.getElementById("fbInstr").textContent="Tap the "+q.fbTones.length+" characteristic tones in the "+S.prog.shape+"-shape zone.";
+  document.getElementById("fbInstr").textContent="Tap the "+q.fbTones.length+" chord tones anywhere in the position zone.";
+  document.getElementById("chkFbBtn").textContent="Check voicing";
+  document.getElementById("legLine").style.display="none";
   const ne=document.getElementById("fbNote");if(q.skippedLbls.length>0){ne.textContent="Note: "+q.skippedLbls.join(", ")+" skipped — correct tones, not part of this voicing.";ne.style.display="block";}else ne.style.display="none";
   buildChips();setMsg("fbMsg","inf","Find: "+q.fbNames.join(", ")+" in the shaded zone.");draw(false);
   const c=document.getElementById("fbc");c.onclick=onTap;c.addEventListener("touchstart",onTap,{passive:false});window.addEventListener("resize",onResize);
 }
 function buildChips(){const el=document.getElementById("chips");el.innerHTML="";const seen=new Set();S.q.fbTones.forEach(t=>{if(seen.has(t.cls))return;seen.add(t.cls);const d=document.createElement("div");d.className="chip";d.id="chip_"+t.cls;d.innerHTML=`<span class="cn">${t.name}</span><span class="ci">${t.interval}</span>`;el.appendChild(d);});}
-function updChips(){const fc=new Set(S.taps.map(t=>nc(OM[t.string]+t.fret)));S.q.fbTones.forEach(t=>{const c=document.getElementById("chip_"+t.cls);if(c)c.classList.toggle("fnd",fc.has(t.cls));});}
+function updChips(){const fc=new Set(S.taps.map(t=>nc(g2Midi(t.string,t.fret))));S.q.fbTones.forEach(t=>{const c=document.getElementById("chip_"+t.cls);if(c)c.classList.toggle("fnd",fc.has(t.cls));});}
 
 const GEO={LABEL_W:18,T:30,B:22,R:8,H:210};
 function calcGeo(cssW){
@@ -569,7 +1064,7 @@ function draw(result){
   ctx.clearRect(0,0,cssW,cssH);
   const dark=window.matchMedia("(prefers-color-scheme:dark)").matches;
   const lc=dark?"rgba(255,255,255,0.13)":"rgba(0,0,0,0.10)";const tc=dark?"#999":"#888";const dc=dark?"rgba(255,255,255,0.17)":"rgba(0,0,0,0.12)";
-  const[cLo,cHi]=CR[S.prog.shape];const[eLo,eHi]=getZone();
+  const[cLo,cHi]=getPosRange();const[eLo,eHi]=getZone();
   if(S.approachFrets){ctx.fillStyle=dark?"rgba(24,95,165,0.10)":"rgba(24,95,165,0.04)";const x0=eLo===0?LABEL_W:L_NUT+(eLo-1)*fw;const xW=eLo===0?(eHi)*fw+L_NUT-LABEL_W:(eHi-eLo+1)*fw;ctx.fillRect(x0,T-10,xW,5*sh+20);ctx.strokeStyle=dark?"rgba(24,95,165,0.30)":"rgba(24,95,165,0.20)";ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.strokeRect(x0,T-10,xW,5*sh+20);ctx.setLineDash([]);}
   ctx.fillStyle=dark?"rgba(24,95,165,0.20)":"rgba(24,95,165,0.08)";ctx.fillRect(L_NUT+(cLo-1)*fw,T-10,(cHi-cLo+1)*fw,5*sh+20);
   ctx.strokeStyle=dark?"rgba(24,95,165,0.48)":"rgba(24,95,165,0.30)";ctx.lineWidth=1;ctx.strokeRect(L_NUT+(cLo-1)*fw,T-10,(cHi-cLo+1)*fw,5*sh+20);
@@ -580,7 +1075,18 @@ function draw(result){
   ctx.fillStyle=tc;ctx.font="10px "+getComputedStyle(document.body).fontFamily;ctx.textAlign="center";ctx.fillText("0",fretX(0,L_NUT,fw),T+5*sh+B-4);
   FD.filter(f=>f<=nf).forEach(f=>{const x=fretX(f,L_NUT,fw);const r2=Math.min(fw*0.13,5);ctx.fillStyle=dc;if(f===12){ctx.beginPath();ctx.arc(x,strY(5,T,sh),r2,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(x,strY(2,T,sh),r2,0,Math.PI*2);ctx.fill();}else{ctx.beginPath();ctx.arc(x,(strY(3,T,sh)+strY(4,T,sh))/2,r2,0,Math.PI*2);ctx.fill();}ctx.fillStyle=tc;ctx.font="10px "+getComputedStyle(document.body).fontFamily;ctx.textAlign="center";ctx.fillText(f,x,T+5*sh+B-4);});
   const fbCls=new Set(q.fbTones.map(t=>t.cls));
-  S.taps.forEach(tap=>{if(tap.fret>nf)return;const ax=fretX(tap.fret,L_NUT,fw);const ay=strY(tap.string,T,sh);const midi=OM[tap.string]+tap.fret;const cls=nc(midi);const name=nn(cls);const isT=fbCls.has(cls);const inZ=tap.fret>=eLo&&tap.fret<=eHi;let fill=!result?"#185FA5":!isT?"#A32D2D":!inZ?"#EF9F27":"#3B6D11";const r=Math.min(fw*0.36,11);ctx.fillStyle=fill;ctx.beginPath();ctx.arc(ax,ay,r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#fff";ctx.font=`bold ${Math.min(r*0.85,9)}px `+getComputedStyle(document.body).fontFamily;ctx.textAlign="center";ctx.fillText(name,ax,ay+3);});
+  // In arpeggio stage: draw ascending pitch line before dots
+  if(S.fbSubStage===2&&S.taps.length>1){
+    const sorted=[...S.taps].sort((a,b)=>(OM[a.string]+a.fret)-(OM[b.string]+b.fret));
+    const pts=sorted.filter(t=>t.fret<=nf).map(t=>({x:fretX(t.fret,L_NUT,fw),y:strY(t.string,T,sh),midi:g2Midi(t.string,t.fret)}));
+    if(pts.length>1){
+      const grad=ctx.createLinearGradient(pts[0].x,pts[0].y,pts[pts.length-1].x,pts[pts.length-1].y);
+      grad.addColorStop(0,"#185FA5");grad.addColorStop(1,"#3B6D11");
+      ctx.strokeStyle=grad;ctx.lineWidth=2;ctx.setLineDash([4,3]);
+      ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);ctx.stroke();ctx.setLineDash([]);
+    }
+  }
+  S.taps.forEach(tap=>{if(tap.fret>nf)return;const ax=fretX(tap.fret,L_NUT,fw);const ay=strY(tap.string,T,sh);const midi=g2Midi(tap.string,tap.fret);const cls=nc(midi);const name=nn(cls);const isT=fbCls.has(cls);const inZ=tap.fret>=eLo&&tap.fret<=eHi;let fill=!result?"#185FA5":!isT?"#A32D2D":!inZ?"#EF9F27":"#3B6D11";const r=Math.min(fw*0.36,11);ctx.fillStyle=fill;ctx.beginPath();ctx.arc(ax,ay,r,0,Math.PI*2);ctx.fill();ctx.fillStyle="#fff";ctx.font=`bold ${Math.min(r*0.85,9)}px `+getComputedStyle(document.body).fontFamily;ctx.textAlign="center";ctx.fillText(name,ax,ay+3);});
 }
 
 function getCoords(e,canvas){
@@ -591,23 +1097,84 @@ function getCoords(e,canvas){
   let fret;if(cx<LABEL_W)return null;if(cx<L_NUT){fret=0;}else{fret=Math.ceil((cx-L_NUT)/fw);if(fret<1||fret>nf)return null;}
   let bestStr=-1,bestDist=Infinity;for(let s=1;s<=6;s++){const d=Math.abs(cy-strY(s,T,sh));if(d<bestDist){bestDist=d;bestStr=s;}}if(bestDist>sh*0.48)return null;return{string:bestStr,fret};
 }
-function onTap(e){if(S.fbDone)return;e.preventDefault();const canvas=document.getElementById("fbc");const co=getCoords(e,canvas);if(!co)return;const idx=S.taps.findIndex(t=>t.string===co.string&&t.fret===co.fret);if(idx>=0)S.taps.splice(idx,1);else S.taps.push(co);draw(false);updChips();const frets=S.taps.map(t=>t.fret).filter(f=>f>0);const span=frets.length>1?Math.max(...frets)-Math.min(...frets):0;const sb=document.getElementById("spanBadge");sb.textContent="span: "+span+(span===1?" fret":" frets");sb.className="badge "+(span>4?"am":"gr");const foundCls=new Set(S.taps.map(t=>nc(OM[t.string]+t.fret)));const missing=S.q.fbTones.filter(t=>!foundCls.has(t.cls)).map(t=>t.name);if([...new Set(missing)].length===0)setMsg("fbMsg","ok","All tones found — press Check frets.");else setMsg("fbMsg","inf","Still needed: "+[...new Set(missing)].join(", ")+".");document.getElementById("chkFbBtn").disabled=S.taps.length===0;}
+function onTap(e){if(S.fbDone)return;e.preventDefault();const canvas=document.getElementById("fbc");const co=getCoords(e,canvas);if(!co)return;const idx=S.taps.findIndex(t=>t.string===co.string&&t.fret===co.fret);if(idx>=0)S.taps.splice(idx,1);else S.taps.push(co);draw(false);updChips();const frets=S.taps.map(t=>t.fret).filter(f=>f>0);const span=frets.length>1?Math.max(...frets)-Math.min(...frets):0;const sb=document.getElementById("spanBadge");sb.textContent="span: "+span+(span===1?" fret":" frets");sb.className="badge "+(span>4?"am":"gr");
+  if(S.fbSubStage===2){
+    // Ascending check feedback
+    const midiSeq=S.taps.map(t=>g2Midi(t.string,t.fret));const isAsc=midiSeq.every((m,i)=>i===0||m>=midiSeq[i-1]);
+    const foundCls=new Set(S.taps.map(t=>nc(g2Midi(t.string,t.fret))));const missing=S.q.fbTones.filter(t=>!foundCls.has(t.cls)).map(t=>t.name);
+    if([...new Set(missing)].length===0&&isAsc)setMsg("fbMsg","ok","All tones in ascending order — press Check arpeggio.");
+    else if(!isAsc&&S.taps.length>1)setMsg("fbMsg","wn","Not ascending — re-tap in pitch order.");
+    else if([...new Set(missing)].length===0)setMsg("fbMsg","inf","All found — ensure ascending pitch order.");
+    else setMsg("fbMsg","inf","Still needed: "+[...new Set(missing)].join(", ")+".");
+  }else{
+    const foundCls=new Set(S.taps.map(t=>nc(g2Midi(t.string,t.fret))));const missing=S.q.fbTones.filter(t=>!foundCls.has(t.cls)).map(t=>t.name);
+    if([...new Set(missing)].length===0)setMsg("fbMsg","ok","All tones found — press Check voicing.");else setMsg("fbMsg","inf","Still needed: "+[...new Set(missing)].join(", ")+".");
+  }
+  document.getElementById("chkFbBtn").disabled=S.taps.length===0;}
 function onResize(){if(S.fbDone||document.getElementById("fbSec").style.display==="none")return;draw(S.fbDone);}
 
 // Dark/light mode change listener
 window.matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>{if(document.getElementById("fbSec").style.display!=="none")draw(S.fbDone);});
 
 function chkFrets(){
-  S.fbDone=true;const q=S.q;const fbCls=new Set(q.fbTones.map(t=>t.cls));const foundCls=new Set(S.taps.map(t=>nc(OM[t.string]+t.fret)));const allFound=[...fbCls].every(c=>foundCls.has(c));const noExtras=[...foundCls].every(c=>fbCls.has(c));const frets=S.taps.map(t=>t.fret).filter(f=>f>0);const span=frets.length>1?Math.max(...frets)-Math.min(...frets):0;const[eLo,eHi]=getZone();const outZ=S.taps.filter(t=>t.fret>0&&(t.fret<eLo||t.fret>eHi));draw(true);let fbOk=false;let warnings=[];
-  if(allFound&&noExtras){fbOk=true;trackFb(q.quality);if(span>4)warnings.push("span "+span+" frets");if(outZ.length>0)warnings.push(outZ.length+" tap"+(outZ.length>1?"s":"")+" outside zone");setMsg("fbMsg",warnings.length?"wn":"ok","Correct!"+(warnings.length?" ("+warnings.join(", ")+")":""));document.getElementById("chkFbBtn").style.display="none";document.getElementById("nxtChordBtn").style.display="inline-block";}
-  else{const missing=q.fbTones.filter(t=>!foundCls.has(t.cls)).map(t=>t.name);const extra=[...foundCls].filter(c=>!fbCls.has(c)).map(c=>nn(c));let txt="";if(missing.length)txt+="Missing: "+[...new Set(missing)].join(", ")+". ";if(extra.length)txt+="Wrong: "+extra.join(", ")+". ";setMsg("fbMsg","no",txt+"Try again.");setTimeout(()=>{S.taps=[];S.fbDone=false;draw(false);updChips();setMsg("fbMsg","inf","Find: "+q.fbNames.join(", ")+" in the shaded zone.");document.getElementById("chkFbBtn").disabled=true;document.getElementById("spanBadge").textContent="span: —";document.getElementById("spanBadge").className="badge gr";},1800);}
-  S.progLog.push({chord:q,spellOk:S.spelledOk,fbOk,warnings});
+  if(S.fbSubStage===1){chkVoicing();}else{chkArpeggio();}
 }
-function clearTaps(){S.taps=[];S.fbDone=false;draw(false);updChips();setMsg("fbMsg","inf","Find: "+S.q.fbNames.join(", ")+" in the shaded zone.");document.getElementById("chkFbBtn").disabled=true;document.getElementById("spanBadge").textContent="span: —";document.getElementById("spanBadge").className="badge gr";}
+
+function chkVoicing(){
+  S.fbDone=true;const q=S.q;const fbCls=new Set(q.fbTones.map(t=>t.cls));const foundCls=new Set(S.taps.map(t=>nc(g2Midi(t.string,t.fret))));const allFound=[...fbCls].every(c=>foundCls.has(c));const noExtras=[...foundCls].every(c=>fbCls.has(c));const frets=S.taps.map(t=>t.fret).filter(f=>f>0);const span=frets.length>1?Math.max(...frets)-Math.min(...frets):0;const[eLo,eHi]=getZone();const outZ=S.taps.filter(t=>t.fret>0&&(t.fret<eLo||t.fret>eHi));draw(true);let warnings=[];
+  if(allFound&&noExtras){
+    if(span>4)warnings.push("span "+span+" frets");if(outZ.length>0)warnings.push(outZ.length+" tap"+(outZ.length>1?"s":"")+" outside zone");
+    setMsg("fbMsg",warnings.length?"wn":"ok","Voicing correct!"+(warnings.length?" ("+warnings.join(", ")+")":"")+" · Now tap an ascending arpeggio.");
+    document.getElementById("chkFbBtn").textContent="Check arpeggio";
+    document.getElementById("fbStagePill").textContent="Stage 2b — ascending arpeggio";
+    document.getElementById("fbInstr").textContent="Tap the same notes as a single-line ascending arpeggio in the position zone.";
+    document.getElementById("legLine").style.display="flex";
+    // Reset taps for arpeggio stage
+    S.taps=[];S.fbDone=false;S.fbSubStage=2;draw(false);updChips();
+    setMsg("fbMsg","inf","Tap notes in ascending pitch order: "+q.fbNames.join(", ")+".");
+    document.getElementById("chkFbBtn").disabled=true;
+  }else{
+    const missing=q.fbTones.filter(t=>!foundCls.has(t.cls)).map(t=>t.name);const extra=[...foundCls].filter(c=>!fbCls.has(c)).map(c=>nn(c));let txt="";if(missing.length)txt+="Missing: "+[...new Set(missing)].join(", ")+". ";if(extra.length)txt+="Wrong: "+extra.join(", ")+". ";setMsg("fbMsg","no",txt+"Try again.");
+    setTimeout(()=>{S.taps=[];S.fbDone=false;draw(false);updChips();setMsg("fbMsg","inf","Find: "+q.fbNames.join(", ")+" in the shaded zone.");document.getElementById("chkFbBtn").disabled=true;document.getElementById("spanBadge").textContent="span: —";document.getElementById("spanBadge").className="badge gr";},1800);
+  }
+}
+
+function chkArpeggio(){
+  S.fbDone=true;const q=S.q;const fbCls=new Set(q.fbTones.map(t=>t.cls));
+  const foundCls=new Set(S.taps.map(t=>nc(g2Midi(t.string,t.fret))));
+  const allFound=[...fbCls].every(c=>foundCls.has(c));
+  const noExtras=[...foundCls].every(c=>fbCls.has(c));
+  // Check ascending pitch order
+  const midiSeq=S.taps.map(t=>g2Midi(t.string,t.fret));
+  const isAscending=midiSeq.every((m,i)=>i===0||m>=midiSeq[i-1]);
+  const frets=S.taps.map(t=>t.fret).filter(f=>f>0);const span=frets.length>1?Math.max(...frets)-Math.min(...frets):0;
+  const[eLo,eHi]=getZone();const outZ=S.taps.filter(t=>t.fret>0&&(t.fret<eLo||t.fret>eHi));
+  // Check for 3+ notes on same string
+  const strCounts={};S.taps.forEach(t=>{strCounts[t.string]=(strCounts[t.string]||0)+1;});
+  const crowdedStr=Object.values(strCounts).some(c=>c>=3);
+  draw(true);let warnings=[];
+  if(span>4)warnings.push("span "+span+" frets");
+  if(outZ.length>0)warnings.push(outZ.length+" tap"+(outZ.length>1?"s":"")+" outside zone");
+  if(crowdedStr)warnings.push("3+ notes on one string");
+  if(allFound&&noExtras&&isAscending){
+    trackFb(q.quality);
+    setMsg("fbMsg",warnings.length?"wn":"ok","Arpeggio correct!"+(warnings.length?" ⚠ "+warnings.join(", "):""));
+    document.getElementById("chkFbBtn").style.display="none";document.getElementById("nxtChordBtn").style.display="inline-block";
+    S.progLog.push({chord:q,spellOk:S.spelledOk,fbOk:true,warnings});
+  }else{
+    let txt="";
+    if(!isAscending)txt+="Notes must be in ascending pitch order. ";
+    const missing=q.fbTones.filter(t=>!foundCls.has(t.cls)).map(t=>t.name);const extra=[...foundCls].filter(c=>!fbCls.has(c)).map(c=>nn(c));
+    if(missing.length)txt+="Missing: "+[...new Set(missing)].join(", ")+". ";if(extra.length)txt+="Wrong: "+extra.join(", ")+". ";
+    setMsg("fbMsg","no",txt+"Try again.");
+    setTimeout(()=>{S.taps=[];S.fbDone=false;draw(false);updChips();setMsg("fbMsg","inf","Tap in ascending pitch order: "+q.fbNames.join(", ")+".");document.getElementById("chkFbBtn").disabled=true;document.getElementById("spanBadge").textContent="span: —";document.getElementById("spanBadge").className="badge gr";},1800);
+  }
+}
+function clearTaps(){S.taps=[];S.fbDone=false;draw(false);updChips();const msg=S.fbSubStage===2?"Tap in ascending pitch order: "+S.q.fbNames.join(", ")+".":"Find: "+S.q.fbNames.join(", ")+" in the shaded zone.";setMsg("fbMsg","inf",msg);document.getElementById("chkFbBtn").disabled=true;document.getElementById("spanBadge").textContent="span: —";document.getElementById("spanBadge").className="badge gr";}
 function advanceChord(){
   window.removeEventListener("resize",onResize);S.chordIdx++;
   if(S.chordIdx>=S.prog.chords.length){
-    if(S.currentForm){S.formLog.push({sectionId:S.prog.id,sectionName:S.prog.name,log:[...S.progLog]});S.formSectionIdx++;const form=FORMS[S.currentForm];if(S.formSectionIdx<form.sectionIds.length){const di=S.lockedDensity==="random"?(Math.random()<0.5?0:Math.random()<0.6?1:2):DENSITY_IDX[S.lockedDensity];S.prog=buildSection(form.sectionIds[S.formSectionIdx],S.formKey,S.formShape,di);S.chordIdx=0;S.progLog=[];loadChordFromProg();return;}}
+    if(S.currentForm){S.formLog.push({sectionId:S.prog.id,sectionName:S.prog.name,log:[...S.progLog]});S.formSectionIdx++;const form=FORMS[S.currentForm];if(S.formSectionIdx<form.sectionIds.length){const di=S.lockedDensity==="random"?(Math.random()<0.5?0:Math.random()<0.6?1:2):DENSITY_IDX[S.lockedDensity];S.prog=buildSection(form.sectionIds[S.formSectionIdx],S.formKey,S.formPos,di);S.chordIdx=0;S.progLog=[];loadChordFromProg();return;}}
     showSummary();
   }else loadChordFromProg();
 }
@@ -621,7 +1188,7 @@ function showSummary(){
   const allSections=isForm?[...S.formLog,{sectionId:S.prog.id,sectionName:S.prog.name,log:[...S.progLog]}]:[{sectionId:S.prog.id,sectionName:S.prog.name,log:[...S.progLog]}];
   const allChords=allSections.flatMap(s=>s.log);const passed=allChords.filter(l=>l.spellOk&&l.fbOk&&!l.auto).length;const total=allChords.filter(l=>!l.auto).length;
   document.getElementById("sumTitle").textContent=isForm?formObj.fullName:S.prog.name+" — "+S.prog.key;
-  document.getElementById("sumMeta").textContent=(isForm?S.formKey+" · ":S.prog.density+" · ")+S.prog.shape+"-shape · "+passed+" of "+total+" chords correct";
+  document.getElementById("sumMeta").textContent=(isForm?S.formKey+" · ":S.prog.density+" · ")+S.prog.pos+" position · "+passed+" of "+total+" chords correct";
   const content=document.getElementById("sumContent");content.innerHTML="";
   allSections.forEach(sec=>{
     if(allSections.length>1){const lbl=document.createElement("div");lbl.className="sum-sec-lbl";lbl.textContent=sec.sectionName;content.appendChild(lbl);}
@@ -637,7 +1204,7 @@ function showSummary(){
   if(passed===total)footer.textContent="Perfect — all "+total+" chords correct.";
   else{const missed=allChords.filter(l=>!(l.spellOk&&l.fbOk)&&!l.auto&&!l.skipped).map(l=>l.chord.symbol);footer.textContent="Missed: "+[...new Set(missed)].join(", ")+".";}
 }
-function nextProgression(){document.getElementById("summaryCard").classList.remove("show");document.getElementById("quizCard").style.display="block";startNext();}
+function nextProgression(){document.getElementById("summaryCard").classList.remove("show");document.getElementById("quizCard").style.display="block";setControlsActive(true);startNext();}
 function startNext(){S.prog=buildProg();S.chordIdx=0;S.progLog=[];loadChordFromProg();}
 function toggleReview(){S.showingReview=!S.showingReview;document.getElementById("reviewCard").classList.toggle("show",S.showingReview);document.getElementById("quizCard").style.display=S.showingReview?"none":"block";if(S.showingReview)renderReview();}
 function renderReview(){
@@ -654,9 +1221,63 @@ function resetTracker(){if(!confirm("Reset all tracking data?"))return;S.tracker
 function setMsg(id,type,txt){const el=document.getElementById(id);el.className="msg "+type+" on";el.textContent=txt;}
 function updStats(){document.getElementById("sScore").textContent=S.score;document.getElementById("sProgs").textContent=S.progs;document.getElementById("sStreak").textContent=S.streak;}
 
+// ── Shared intro state ─────────────────────────────────────────────────────
+let introLevel=1;// 1 or 2 — which level is selected in the intro overlay
+
+function introPickLevel(n){
+  introLevel=n;
+  document.getElementById("iLvl1Btn").classList.toggle("on",n===1);
+  document.getElementById("iLvl2Btn").classList.toggle("on",n===2);
+  document.getElementById("iLvl3Btn").classList.toggle("on",n===3);
+  document.getElementById("introL1Settings").style.display=n===1?"block":"none";
+  document.getElementById("introL2Settings").style.display=n===2?"block":"none";
+  document.getElementById("introL3Settings").style.display=n===3?"block":"none";
+  document.getElementById("introStartBtn").textContent=n===1?"Start Level 1 →":n===2?"Start Level 2 →":"Start Level 3 →";
+  if(n===2)l2PopulateMainIntro();// lazy — safe by click time
+  if(n===3)l3PopulateMainIntro();// lazy — safe by click time
+}
+
+// ── Session intro screen ───────────────────────────────────────────────────
+function buildIntroScreen(){
+  // Tiers
+  const tr=document.getElementById("itierRow");tr.innerHTML="";
+  ["T1","T2","T3","T4"].forEach((lbl,i)=>{const t=i+1;const b=document.createElement("button");b.className="intro-opt"+(S.tiers.includes(t)?" on":"");b.textContent=lbl;b.onclick=()=>{if(S.tiers.includes(t)){if(S.tiers.length===1)return;S.tiers=S.tiers.filter(x=>x!==t);}else S.tiers=[...S.tiers,t];tr.querySelectorAll(".intro-opt").forEach((b2,j)=>b2.classList.toggle("on",S.tiers.includes(j+1)));};tr.appendChild(b);});
+  // Positions
+  const pr=document.getElementById("iposRow");pr.innerHTML="";
+  const rndBtn=document.createElement("button");rndBtn.className="intro-opt"+(S.lockedPos===null?" locked":"");rndBtn.textContent="Random";rndBtn.onclick=()=>{S.lockedPos=null;pr.querySelectorAll(".intro-opt").forEach((b,i)=>{b.classList.toggle("locked",i===0&&S.lockedPos===null);b.classList.remove("on");});};pr.appendChild(rndBtn);
+  POS_LABELS.forEach(p=>{const b=document.createElement("button");b.className="intro-opt"+(S.lockedPos===p?" on":"");b.textContent=p;b.onclick=()=>{S.lockedPos=p;pr.querySelectorAll(".intro-opt").forEach((b2,j)=>{b2.classList.toggle("on",j>0&&POS_LABELS[j-1]===p);b2.classList.toggle("locked",j===0&&false);});rndBtn.classList.remove("locked");};pr.appendChild(b);});
+  // Density
+  const dr=document.getElementById("idensRow");dr.innerHTML="";
+  [["random","Random"],["basic","Basic"],["extended","Extended"],["altered","Altered"]].forEach(([val,lbl])=>{const b=document.createElement("button");b.className="intro-opt"+(S.lockedDensity===val?" on":"");b.textContent=lbl;b.onclick=()=>{S.lockedDensity=val;dr.querySelectorAll(".intro-opt").forEach((b2,k)=>b2.classList.toggle("on",[["random"],["basic"],["extended"],["altered"]][k][0]===val));};dr.appendChild(b);});
+  // Split
+  const sb=document.getElementById("isplitBtn");sb.classList.toggle("on",S.splitBarMode);sb.textContent=S.splitBarMode?"Split bars":"Simple mode";document.getElementById("isplitHint").textContent=S.splitBarMode?"quiz all chords":"anchor chord only";
+}
+function introToggleSplit(){S.splitBarMode=!S.splitBarMode;const sb=document.getElementById("isplitBtn");sb.classList.toggle("on",S.splitBarMode);sb.textContent=S.splitBarMode?"Split bars":"Simple mode";document.getElementById("isplitHint").textContent=S.splitBarMode?"quiz all chords":"anchor chord only";}
+function startSession(){
+  document.getElementById("introOverlay").style.display="none";
+  if(introLevel===2){
+    L2.introShown=true;// set before switchLevel so it skips the separate L2 overlay
+    switchLevel(2);
+    L2.started=true;
+    l2BuildSessionControls();
+    l2NewProg();
+    return;
+  }
+  if(introLevel===3){
+    L3.started=true;// set before switchLevel so it doesn't double-call l3NewProg
+    switchLevel(3);
+    l3NewProg();
+    return;
+  }
+  S.sessionStarted=true;setControlsActive(true);saveState();
+  S.prog=buildProg();S.chordIdx=0;S.progLog=[];loadChordFromProg();
+}
+function setControlsActive(active){
+  document.querySelector(".controls").classList.toggle("session-active",active);
+}
+
 // ── Boot ───────────────────────────────────────────────────────────────────
-initTiers();initShapes();initDensity();initFilter();initGrid();
-// Apply loaded state to controls
+initTiers();initPos();initDensity();initFilter();initGrid();
 document.getElementById("approachBtn").classList.toggle("on",S.approachFrets);
 document.getElementById("approachBtn").textContent=S.approachFrets?"±1 fret":"position only";
 document.getElementById("approachBadge").style.display=S.approachFrets?"inline-block":"none";
@@ -664,18 +1285,2023 @@ document.getElementById("splitBtn").classList.toggle("on",S.splitBarMode);
 document.getElementById("splitBtn").textContent=S.splitBarMode?"split bars":"simple mode";
 document.getElementById("splitHint").textContent=S.splitBarMode?"quiz all chords in split bars":"anchor chord only";
 updStats();
-S.prog=buildProg();S.chordIdx=0;S.progLog=[];
-loadChordFromProg();
-</script>
+buildIntroScreen();
+document.getElementById("introOverlay").style.display="flex";
 
-<script>
-if("serviceWorker" in navigator){
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js")
-      .then(r => console.log("SW registered:", r.scope))
-      .catch(e => console.log("SW failed:", e));
+// ── Level tab switching ────────────────────────────────────────────────────
+function switchLevel(n){
+  document.getElementById("tabL1").classList.toggle("active",n===1);
+  document.getElementById("tabL1").classList.toggle("l1",n===1);
+  document.getElementById("tabL2").classList.toggle("active",n===2);
+  document.getElementById("tabL2").classList.toggle("l2",n===2);
+  document.getElementById("tabL3").classList.toggle("active",n===3);
+  document.getElementById("level1").classList.toggle("hidden",n!==1);
+  document.getElementById("level2").classList.toggle("active",n===2);
+  document.getElementById("level3").classList.toggle("active",n===3);
+  if(n===2&&!L2.introShown){l2ShowIntro();}
+  if(n===3&&!L3.started){L3.started=true;l3NewProg();}
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// LEVEL 2 — Chord & Arpeggio Layout
+// ══════════════════════════════════════════════════════════════════════════
+
+// ── Bar colours ────────────────────────────────────────────────────────────
+const L2_COLORS=["#185FA5","#0F6E56","#534AB7","#854F0B"];
+const L2_COLORS_LIGHT=["rgba(24,95,165,0.18)","rgba(15,110,86,0.18)","rgba(83,74,183,0.18)","rgba(133,79,11,0.18)"];
+
+// ── L2 state ───────────────────────────────────────────────────────────────
+const L2={
+  introShown:false,
+  started:false,
+  // settings
+  chordCount:2,       // 2|3|4
+  chordPos:null,      // null=random or POS_LABELS string
+  arpPos:null,
+  density:"basic",
+  // session
+  prog:null,          // {key,progName,chords[],chordPos,arpPos}
+  phase:"chord",      // "chord"|"arp"
+  activeBarIdx:0,     // which bar currently being worked
+  chordTaps:[],       // taps for active chord being placed (array of {string,fret})
+  arpTaps:[],         // taps for active arpeggio
+  // confirmed results per bar
+  results:[],         // [{chord,voicingTaps,arpTaps,arpDir,vlLines}]
+  // voice leading lines between confirmed bars
+  chordVLLines:[],    // [{fromBar,toBar,fromTap,toTap,dist}]
+  arpVLLines:[],
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function l2Nc(m){return((m%12)+12)%12;}
+function l2Pos(pos){return POSITIONS[pos]||[0,4];}
+function l2Zone(pos){const[lo,hi]=l2Pos(pos);return[lo,hi];}
+
+// Determine mandatory chord tones for validation
+// Returns {mustHave:[cls,...], allValid:[cls,...]}
+function l2ChordMandatory(chord){
+  const rootCls=NC_MAP[chord.root];
+  const thirdIv=chord.fbTones.find(t=>t.interval==="3"||t.interval==="b3");
+  const must=[rootCls];// root mandatory
+  if(thirdIv)must.push(thirdIv.cls);// 3rd mandatory
+  // All chord tone classes are valid
+  const allValid=chord.fbTones.map(t=>t.cls);
+  return{must,allValid};
+}
+
+// Mandatory arpeggio tones: root + 3rd + at least 2 more chord tones (min 4 total)
+function l2ArpMandatory(chord){
+  const rootCls=NC_MAP[chord.root];
+  const thirdIv=chord.fbTones.find(t=>t.interval==="3"||t.interval==="b3");
+  const must=[rootCls];
+  if(thirdIv)must.push(thirdIv.cls);
+  const allValid=chord.fbTones.map(t=>t.cls);
+  return{must,allValid,minNotes:4};
+}
+
+// ── Populate L2 settings inside the shared intro overlay ──────────────────
+function l2PopulateMainIntro(){
+  const ccEl=document.getElementById("iL2CountRow");if(!ccEl)return;
+  ccEl.innerHTML="";
+  [2,3,4].forEach(n=>{
+    const b=document.createElement("button");
+    b.className="intro-opt"+(L2.chordCount===n?" on":"");
+    b.textContent=n+" chords";
+    b.onclick=()=>{L2.chordCount=n;ccEl.querySelectorAll(".intro-opt").forEach((x,i)=>x.classList.toggle("on",[2,3,4][i]===n));};
+    ccEl.appendChild(b);
+  });
+  const dEl=document.getElementById("iL2DensRow");dEl.innerHTML="";
+  ["basic","extended","altered"].forEach(d=>{
+    const b=document.createElement("button");
+    b.className="intro-opt"+(L2.density===d?" on":"");
+    b.textContent=d.charAt(0).toUpperCase()+d.slice(1);
+    b.onclick=()=>{L2.density=d;dEl.querySelectorAll(".intro-opt").forEach((x,i)=>x.classList.toggle("on",["basic","extended","altered"][i]===d));};
+    dEl.appendChild(b);
   });
 }
+
+// ── L2 intro screen ────────────────────────────────────────────────────────
+function l2ShowIntro(){
+  L2.introShown=true;
+  l2BuildIntro();
+  document.getElementById("l2IntroOverlay").classList.add("show");
+}
+function l2HideIntro(){
+  document.getElementById("l2IntroOverlay").classList.remove("show");
+}
+function l2BuildIntro(){
+  // Chord count
+  const ccEl=document.getElementById("l2IChordCount");ccEl.innerHTML="";
+  [2,3,4].forEach(n=>{
+    const b=document.createElement("button");b.className="l2-iopt"+(L2.chordCount===n?" on":"");
+    b.textContent=n+" chords";b.onclick=()=>{L2.chordCount=n;ccEl.querySelectorAll(".l2-iopt").forEach((x,i)=>x.classList.toggle("on",[2,3,4][i]===n));};
+    ccEl.appendChild(b);
+  });
+  // Chord position
+  _l2BuildPosRow("l2IChordPos",()=>L2.chordPos,(v)=>{L2.chordPos=v;});
+  // Arp position
+  _l2BuildPosRow("l2IArpPos",()=>L2.arpPos,(v)=>{L2.arpPos=v;});
+  // Density
+  const dEl=document.getElementById("l2IDens");dEl.innerHTML="";
+  ["basic","extended","altered"].forEach(d=>{
+    const b=document.createElement("button");b.className="l2-iopt"+(L2.density===d?" on":"");
+    b.textContent=d;b.onclick=()=>{L2.density=d;dEl.querySelectorAll(".l2-iopt").forEach((x,i)=>x.classList.toggle("on",["basic","extended","altered"][i]===d));};
+    dEl.appendChild(b);
+  });
+}
+function _l2BuildPosRow(elId,getVal,setVal){
+  const el=document.getElementById(elId);el.innerHTML="";
+  const rndB=document.createElement("button");
+  rndB.className="l2-iopt"+(getVal()===null?" locked":"");rndB.textContent="Random";
+  rndB.onclick=()=>{setVal(null);el.querySelectorAll(".l2-iopt").forEach((b,i)=>{b.classList.toggle("locked",i===0&&getVal()===null);b.classList.remove("on");});};
+  el.appendChild(rndB);
+  POS_LABELS.forEach(p=>{
+    const b=document.createElement("button");b.className="l2-iopt"+(getVal()===p?" on":"");
+    b.textContent=p;b.onclick=()=>{setVal(p);el.querySelectorAll(".l2-iopt").forEach((x,i)=>{x.classList.toggle("on",i>0&&POS_LABELS[i-1]===p);x.classList.remove("locked");});rndB.classList.remove("locked");};
+    el.appendChild(b);
+  });
+}
+function l2StartSession(){
+  l2HideIntro();
+  L2.started=true;
+  l2BuildSessionControls();
+  l2NewProg();
+}
+
+// ── Session controls (chord count + settings button in top bar) ───────────
+function l2BuildSessionControls(){
+  document.getElementById("l2TopBar").style.display="flex";
+  const cr=document.getElementById("l2CountRow");cr.innerHTML="";
+  [2,3,4].forEach(n=>{
+    const b=document.createElement("button");b.className="l2-count-btn"+(L2.chordCount===n?" on":"");
+    b.textContent=n;b.id="l2cnt"+n;
+    b.onclick=()=>{
+      if(L2.chordCount===n)return;
+      L2.chordCount=n;
+      [2,3,4].forEach(x=>document.getElementById("l2cnt"+x).classList.toggle("on",x===n));
+      l2NewProg();// restart with new count
+    };
+    cr.appendChild(b);
+  });
+}
+
+// ── Build progression ──────────────────────────────────────────────────────
+function l2BuildProg(){
+  const pool=STANDALONE_IDS.filter(id=>PROGS[id].tier<=2);
+  const pid=rnd(pool);const tmpl=PROGS[pid];
+  if(!S.keyDeck.length)S.keyDeck=buildKeyDeck();
+  const key=S.keyDeck.pop();
+  const di=L2.density==="basic"?0:L2.density==="extended"?1:2;
+  const chordPos=L2.chordPos||rnd(POS_LABELS);
+  const arpPos=L2.arpPos||rnd(POS_LABELS);
+  const tonic=NC_MAP[key];
+  const chords=tmpl.chords.slice(0,L2.chordCount).map(([deg,roman,variants])=>{
+    const baseDeg=deg.split("/")[0];
+    const rootCls=(tonic+DEG[baseDeg])%12;
+    const rootName=NC_NAME[rootCls];
+    const quality=variants[Math.min(di,variants.length-1)];
+    const fbTones=(FB_IV[quality]||[]).map((iv,i)=>({
+      name:NC_NAME[((rootCls+iv)%12+12)%12],
+      cls:((rootCls+iv)%12+12)%12,
+      interval:(FB_LBL[quality]||[])[i]||""
+    }));
+    const fbNames=[...new Set(fbTones.map(t=>t.name))];
+    const guideTones=fbTones.filter(t=>["3","b3","7","b7","bb7"].includes(t.interval));
+    return{root:rootName,quality,roman,symbol:makeSym(rootName,quality),fbTones,fbNames,guideTones};
+  });
+  return{key,progName:tmpl.name,chords,chordPos,arpPos};
+}
+
+// ── New progression ────────────────────────────────────────────────────────
+function l2NewProg(){
+  L2.prog=l2BuildProg();
+  L2.phase="chord";L2.activeBarIdx=0;
+  L2.chordTaps=[];L2.arpTaps=[];
+  L2.results=[];L2.chordVLLines=[];L2.arpVLLines=[];
+  // Show UI
+  document.getElementById("l2ProgBar").style.display="block";
+  document.getElementById("l2SubTabs").style.display="flex";
+  document.getElementById("l2ChordSection").style.display="block";
+  document.getElementById("l2ArpSection").style.display="block";
+  document.getElementById("l2SummaryCard").style.display="none";
+  // Update legend for chord count
+  [3,4].forEach(n=>{
+    const show=L2.chordCount>=n;
+    ["l2CLeg","l2ALeg"].forEach(pre=>{const el=document.getElementById(pre+n);if(el)el.style.display=show?"flex":"none";});
+  });
+  l2BuildPosRows();
+  l2RenderProgBar();
+  l2SetPhase("chord");
+  // Build C3 grids (replaces single canvas)
+  l2BuildGrid("l2ChordGrid","chord");
+  l2BuildGrid("l2ArpGrid","arp");
+  window.addEventListener("resize",l2OnResize);
+}
+
+// ── Position selectors in section headers ──────────────────────────────────
+function l2BuildPosRows(){
+  _l2BuildInlinePosRow("l2ChordPosRow","chord");
+  _l2BuildInlinePosRow("l2ArpPosRow","arp");
+}
+function _l2BuildInlinePosRow(elId,kind){
+  const el=document.getElementById(elId);el.innerHTML="";
+  const cur=kind==="chord"?L2.prog.chordPos:L2.prog.arpPos;
+  POS_LABELS.forEach(p=>{
+    const b=document.createElement("button");
+    b.className="l2-pos-btn"+(cur===p?" on":"");b.textContent=p;
+    b.onclick=()=>{
+      if(kind==="chord")L2.prog.chordPos=p;else L2.prog.arpPos=p;
+      el.querySelectorAll(".l2-pos-btn").forEach((x,i)=>x.classList.toggle("on",POS_LABELS[i]===p));
+      if(kind==="chord"){
+        L2.chordTaps=[];l2BuildGrid("l2ChordGrid","chord");
+      }else{
+        L2.arpTaps=[];
+        // Invalidate ALL confirmed arp results — fret numbers from old position are invalid
+        for(let i=0;i<L2.chordCount;i++){
+          if(L2.results[i])delete L2.results[i].arpTaps;
+        }
+        L2.arpVLLines=[];          // all VL lines referenced old-position taps
+        l2BuildGrid("l2ArpGrid","arp");
+        l2LoadArpBar(0);           // resets activeBarIdx, chips, buttons, header
+        l2RenderProgBar();
+        // Override the generic "Tap arpeggio" message with an explicit notice
+        l2SetMsg("l2ArpMsg","inf","Position changed to "+p+" — re-tap all arpeggios from bar 1.");
+      }
+    };
+    el.appendChild(b);
+  });
+}
+
+// ── Progression bar ────────────────────────────────────────────────────────
+function l2RenderProgBar(){
+  const p=L2.prog;
+  document.getElementById("l2ProgKey").textContent=
+    p.progName+" — "+p.key+" · chord: "+p.chordPos+" pos · arp: "+p.arpPos+" pos";
+  const barsEl=document.getElementById("l2Bars");barsEl.innerHTML="";
+  barsEl.style.gridTemplateColumns=`repeat(${L2.chordCount},1fr)`;
+  p.chords.forEach((ch,i)=>{
+    const res=L2.results[i];
+    const isActive=i===L2.activeBarIdx;
+    let cls="l2-bar bar-c"+i+(isActive?" active":"");
+    const d=document.createElement("div");d.className=cls;
+    const chordDone=res&&res.voicingTaps;
+    const arpDone=res&&res.arpTaps;
+    const stageLabel=isActive?(L2.phase==="chord"?"→ voicing":"→ arpeggio"):chordDone&&arpDone?"✓ done":chordDone?"chord ✓":"";
+    d.innerHTML=`<div class="l2-bar-sym" style="color:${L2_COLORS[i]}">${ch.symbol}</div>
+      <div class="l2-bar-num">bar ${i+1}</div>
+      <div class="l2-bar-stage">${stageLabel}</div>`;
+    barsEl.appendChild(d);
+  });
+}
+
+// ── Phase switching ────────────────────────────────────────────────────────
+function l2SetPhase(phase){
+  L2.phase=phase;L2.activeBarIdx=0;
+  document.getElementById("l2SubA").classList.toggle("active",phase==="chord");
+  document.getElementById("l2SubB").classList.toggle("active",phase==="arp");
+  if(phase==="chord"){
+    l2LoadChordBar(0);
+    // Reset arp section to idle state
+    l2SetMsg("l2ArpMsg","","Chord voicings first — then arpeggios.");
+    document.getElementById("l2ArpChkBtn").disabled=true;
+    document.getElementById("l2ArpNextBtn").style.display="none";
+    document.getElementById("l2ArpDoneBtn").style.display="none";
+  }else{
+    l2LoadArpBar(0);
+  }
+  l2RenderProgBar();
+}
+
+// ── Chord phase ────────────────────────────────────────────────────────────
+function l2LoadChordBar(idx){
+  L2.activeBarIdx=idx;L2.chordTaps=[];
+  const ch=L2.prog.chords[idx];
+  const{must,allValid}=l2ChordMandatory(ch);
+  const mustNames=must.map(c=>NC_NAME[c]);
+  document.getElementById("l2ChordActiveHdr").textContent=
+    "Bar "+(idx+1)+" · "+ch.symbol+" ("+ch.roman+") · tap R+3rd + other tones · mandatory: "+mustNames.join(", ");
+  l2BuildChips("l2ChordChips",ch,null);
+  document.getElementById("l2ChordChkBtn").disabled=true;
+  document.getElementById("l2ChordChkBtn").textContent="Check voicing";
+  document.getElementById("l2ChordNextBtn").style.display="none";
+  document.getElementById("l2ChordDoneBtn").style.display="none";
+  l2SetMsg("l2ChordMsg","inf","Tap chord tones for "+ch.symbol+" — voice lead from previous bar where possible.");
+  l2RedrawCell("chord",L2.activeBarIdx,false);
+  l2UpdChordSpan();
+}
+
+function l2OnChordTap(e){// superseded by g2OnTap — kept for safety
+  return;
+  e.preventDefault();
+  const co=getCoords(e,document.getElementById("l2ChordsCanvas"));if(!co)return;
+  const idx=L2.chordTaps.findIndex(t=>t.string===co.string&&t.fret===co.fret);
+  if(idx>=0)L2.chordTaps.splice(idx,1);else L2.chordTaps.push(co);
+  l2RedrawCell("chord",L2.activeBarIdx,false);
+  l2UpdChordChips();l2UpdChordSpan();
+  const ch=L2.prog.chords[L2.activeBarIdx];
+  const foundCls=new Set(L2.chordTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+  const missing=ch.fbTones.filter(t=>{
+    const{must}=l2ChordMandatory(ch);return must.includes(t.cls)&&!foundCls.has(t.cls);
+  }).map(t=>t.name);
+  if(missing.length===0&&L2.chordTaps.length>=1)l2SetMsg("l2ChordMsg","ok","Mandatory tones found — press Check voicing.");
+  else if(missing.length)l2SetMsg("l2ChordMsg","inf","Still need: "+[...new Set(missing)].join(", ")+".");
+  document.getElementById("l2ChordChkBtn").disabled=L2.chordTaps.length===0;
+}
+
+function l2CheckChord(){
+  const ch=L2.prog.chords[L2.activeBarIdx];
+  const{must,allValid}=l2ChordMandatory(ch);
+  const foundCls=new Set(L2.chordTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+  const[eLo,eHi]=l2Zone(L2.prog.chordPos);
+  const wrongNotes=L2.chordTaps.filter(t=>!allValid.includes(l2Nc(g2Midi(t.string,t.fret))));
+  const missingMust=must.filter(c=>!foundCls.has(c));
+  const hasRoot=foundCls.has(NC_MAP[ch.root]);
+  const isRootless=!hasRoot&&missingMust.length===0&&wrongNotes.length===0;
+  l2RedrawCell("chord",L2.activeBarIdx,true);
+  if(wrongNotes.length>0){
+    const wn=wrongNotes.map(t=>NC_NAME[l2Nc(g2Midi(t.string,t.fret))]);
+    l2SetMsg("l2ChordMsg","no","Wrong notes: "+[...new Set(wn)].join(", ")+". Must be chord tones only.");
+    setTimeout(()=>{L2.chordTaps=[];l2RedrawCell("chord",L2.activeBarIdx,false);l2UpdChordChips();l2SetMsg("l2ChordMsg","inf","Tap chord tones for "+ch.symbol+".");document.getElementById("l2ChordChkBtn").disabled=true;},1800);
+    return;
+  }
+  if(missingMust.length>0){
+    const mn=missingMust.map(c=>NC_NAME[c]);
+    l2SetMsg("l2ChordMsg","no","Missing mandatory tones: "+mn.join(", ")+".");
+    setTimeout(()=>{L2.chordTaps=[];l2RedrawCell("chord",L2.activeBarIdx,false);l2UpdChordChips();l2SetMsg("l2ChordMsg","inf","Tap chord tones for "+ch.symbol+".");document.getElementById("l2ChordChkBtn").disabled=true;},1800);
+    return;
+  }
+  // Passed
+  if(!L2.results[L2.activeBarIdx])L2.results[L2.activeBarIdx]={chord:ch};
+  L2.results[L2.activeBarIdx].voicingTaps=[...L2.chordTaps];
+  // Compute chord VL lines
+  if(L2.activeBarIdx>0)l2ComputeChordVL(L2.activeBarIdx);
+  // Redraw all chord cells with confirmed result
+  const _cg=document.getElementById("l2ChordGrid");
+  if(_cg)_cg.querySelectorAll("canvas").forEach((c,i)=>g2Draw(c,i,"chord",true));
+  l2drawVLOverlays();
+  const msg=isRootless?"Rootless voicing — valid. "+(L2.activeBarIdx<L2.chordCount-1?"Next chord.":"All voiced!"):"Voicing correct!"+(L2.activeBarIdx<L2.chordCount-1?" Next chord.":" All voiced!");
+  l2SetMsg("l2ChordMsg",isRootless?"wn":"ok",msg);
+  // Show legend
+  document.getElementById("l2CLegVL").style.display="flex";
+  document.getElementById("l2CLegVLamb").style.display="flex";
+  l2RenderProgBar();
+  if(L2.activeBarIdx<L2.chordCount-1){
+    document.getElementById("l2ChordNextBtn").style.display="inline-block";
+    document.getElementById("l2ChordChkBtn").style.display="none";
+  }else{
+    document.getElementById("l2ChordDoneBtn").style.display="inline-block";
+    document.getElementById("l2ChordChkBtn").style.display="none";
+  }
+}
+
+function l2AdvanceChord(){
+  document.getElementById("l2ChordNextBtn").style.display="none";
+  document.getElementById("l2ChordChkBtn").style.display="inline-block";
+  l2LoadChordBar(L2.activeBarIdx+1);
+}
+
+function l2ClearChordTaps(){
+  L2.chordTaps=[];l2RedrawCell("chord",L2.activeBarIdx,false);l2UpdChordChips();
+  const ch=L2.prog.chords[L2.activeBarIdx];
+  l2SetMsg("l2ChordMsg","inf","Tap chord tones for "+ch.symbol+" — voice lead from previous bar where possible.");
+  document.getElementById("l2ChordChkBtn").disabled=true;
+  l2UpdChordSpan();
+}
+
+// ── Arpeggio phase ────────────────────────────────────────────────────────
+function l2LoadArpBar(idx){
+  L2.activeBarIdx=idx;L2.arpTaps=[];
+  const ch=L2.prog.chords[idx];
+  document.getElementById("l2ArpActiveHdr").textContent=
+    "Bar "+(idx+1)+" · "+ch.symbol+" ("+ch.roman+") · min 4 notes · R+3rd mandatory · multiple per string OK";
+  l2BuildChips("l2ArpChips",ch,null);
+  document.getElementById("l2ArpChkBtn").disabled=true;
+  document.getElementById("l2ArpChkBtn").textContent="Check arpeggio";
+  document.getElementById("l2ArpNextBtn").style.display="none";
+  document.getElementById("l2ArpDoneBtn").style.display="none";
+  document.getElementById("l2ArpDirBadge").style.display="none";
+  l2SetMsg("l2ArpMsg","inf","Tap arpeggio tones for "+ch.symbol+" in "+L2.prog.arpPos+" position. Multiple notes per string allowed.");
+  l2RedrawCell("arp",L2.activeBarIdx,false);
+  l2UpdArpSpan();
+}
+
+function l2OnArpTap(e){// superseded by g2OnTap — kept for safety
+  return;
+  e.preventDefault();
+  const co=getCoords(e,document.getElementById("l2ArpCanvas"));if(!co)return;
+  const idx=L2.arpTaps.findIndex(t=>t.string===co.string&&t.fret===co.fret);
+  if(idx>=0)L2.arpTaps.splice(idx,1);else L2.arpTaps.push(co);
+  l2RedrawCell("arp",L2.activeBarIdx,false);l2UpdArpChips();l2UpdArpSpan();
+  // Live direction detection
+  const midiSeq=L2.arpTaps.map(t=>g2Midi(t.string,t.fret));
+  let dirLabel="";
+  if(midiSeq.length>=2){
+    const dir=l2DetectDir(midiSeq);
+    const badge=document.getElementById("l2ArpDirBadge");
+    if(dir==="ascending"){badge.textContent="↑ ascending";badge.className="badge gr";badge.style.display="inline-block";dirLabel="ascending";}
+    else if(dir==="descending"){badge.textContent="↓ descending";badge.className="badge bl";badge.style.display="inline-block";dirLabel="descending";}
+    else if(dir==="wrap-asc"){badge.textContent="↑ ascending (octave wrap)";badge.className="badge am";badge.style.display="inline-block";}
+    else if(dir==="wrap-desc"){badge.textContent="↓ descending (octave wrap)";badge.className="badge am";badge.style.display="inline-block";}
+    else{badge.textContent="⚠ inconsistent direction";badge.className="badge am";badge.style.display="inline-block";}
+  }
+  // Feedback
+  const ch=L2.prog.chords[L2.activeBarIdx];
+  const{must,allValid,minNotes}=l2ArpMandatory(ch);
+  const foundCls=new Set(L2.arpTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+  const missingMust=must.filter(c=>!foundCls.has(c));
+  const wrongNotes=L2.arpTaps.filter(t=>!allValid.includes(l2Nc(g2Midi(t.string,t.fret))));
+  if(wrongNotes.length){l2SetMsg("l2ArpMsg","no","Non-chord note detected — only chord tones allowed.");}
+  else if(missingMust.length){l2SetMsg("l2ArpMsg","inf","Still need: "+missingMust.map(c=>NC_NAME[c]).join(", ")+".");}
+  else if(L2.arpTaps.length<minNotes){l2SetMsg("l2ArpMsg","inf",L2.arpTaps.length+" notes — need at least "+minNotes+".");}
+  else{l2SetMsg("l2ArpMsg","ok","Ready — press Check arpeggio.");}
+  document.getElementById("l2ArpChkBtn").disabled=L2.arpTaps.length===0;
+}
+
+// Detect direction from MIDI sequence — handles wraps
+function l2DetectDir(midiSeq){
+  if(midiSeq.length<2)return"unknown";
+  // Determine initial direction from first two notes
+  const initDir=midiSeq[1]>midiSeq[0]?"asc":"desc";
+  let wrapped=false;
+  for(let i=1;i<midiSeq.length;i++){
+    const diff=midiSeq[i]-midiSeq[i-1];
+    if(initDir==="asc"){
+      if(diff<0){
+        // Allow one octave wrap (jump of -7 to -12 semitones typical)
+        if(!wrapped&&diff>=-12&&diff<=-7){wrapped=true;}
+        else return"inconsistent";
+      }
+    }else{
+      if(diff>0){
+        if(!wrapped&&diff>=7&&diff<=12){wrapped=true;}
+        else return"inconsistent";
+      }
+    }
+  }
+  if(initDir==="asc")return wrapped?"wrap-asc":"ascending";
+  return wrapped?"wrap-desc":"descending";
+}
+
+function l2CheckArp(){
+  const ch=L2.prog.chords[L2.activeBarIdx];
+  const{must,allValid,minNotes}=l2ArpMandatory(ch);
+  const foundCls=new Set(L2.arpTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+  const wrongNotes=L2.arpTaps.filter(t=>!allValid.includes(l2Nc(g2Midi(t.string,t.fret))));
+  const missingMust=must.filter(c=>!foundCls.has(c));
+  l2RedrawCell("arp",L2.activeBarIdx,true);
+  let errors=[];
+  if(wrongNotes.length)errors.push("non-chord notes: "+[...new Set(wrongNotes.map(t=>NC_NAME[l2Nc(g2Midi(t.string,t.fret))]))].join(", "));
+  if(missingMust.length)errors.push("missing: "+missingMust.map(c=>NC_NAME[c]).join(", "));
+  if(L2.arpTaps.length<minNotes)errors.push("need at least "+minNotes+" notes");
+  // Direction is NOT validated — ascending, descending, and leaps are all permissible
+  if(errors.length){
+    l2SetMsg("l2ArpMsg","no",errors.join(" · ")+".");
+    setTimeout(()=>{
+      L2.arpTaps=[];
+      l2RedrawCell("arp",L2.activeBarIdx,false);
+      l2UpdArpChips();
+      l2SetMsg("l2ArpMsg","inf","Tap arpeggio tones for "+ch.symbol+" — try again.");
+      document.getElementById("l2ArpChkBtn").disabled=true;
+    },1800);
+    return;
+  }
+  // Passed
+  if(!L2.results[L2.activeBarIdx])L2.results[L2.activeBarIdx]={chord:ch};
+  L2.results[L2.activeBarIdx].arpTaps=[...L2.arpTaps];
+  if(L2.activeBarIdx>0)l2ComputeArpVL(L2.activeBarIdx);
+  // Redraw all arp cells with confirmed result
+  const _ag=document.getElementById("l2ArpGrid");
+  if(_ag)_ag.querySelectorAll("canvas").forEach((c,i)=>g2Draw(c,i,"arp",true));
+  l2drawVLOverlays();
+  l2SetMsg("l2ArpMsg","ok","Arpeggio correct!"+(L2.activeBarIdx<L2.chordCount-1?" Next arpeggio.":" All done!"));
+  document.getElementById("l2ALegVL").style.display="flex";
+  document.getElementById("l2ALegVLamb").style.display="flex";
+  l2RenderProgBar();
+  if(L2.activeBarIdx<L2.chordCount-1){
+    document.getElementById("l2ArpNextBtn").style.display="inline-block";
+    document.getElementById("l2ArpChkBtn").style.display="none";
+  }else{
+    document.getElementById("l2ArpDoneBtn").style.display="inline-block";
+    document.getElementById("l2ArpChkBtn").style.display="none";
+  }
+}
+
+function l2AdvanceArp(){
+  document.getElementById("l2ArpNextBtn").style.display="none";
+  document.getElementById("l2ArpChkBtn").style.display="inline-block";
+  l2LoadArpBar(L2.activeBarIdx+1);
+}
+
+function l2ClearArpTaps(){
+  L2.arpTaps=[];l2RedrawCell("arp",L2.activeBarIdx,false);l2UpdArpChips();
+  const ch=L2.prog.chords[L2.activeBarIdx];
+  l2SetMsg("l2ArpMsg","inf","Tap arpeggio tones for "+ch.symbol+" — multiple notes per string allowed.");
+  document.getElementById("l2ArpChkBtn").disabled=true;
+  document.getElementById("l2ArpDirBadge").style.display="none";
+  l2UpdArpSpan();
+}
+
+// ── Chips ─────────────────────────────────────────────────────────────────
+function l2BuildChips(elId,chord,foundCls){
+  const el=document.getElementById(elId);el.innerHTML="";
+  chord.fbTones.forEach(t=>{
+    const d=document.createElement("div");d.className="chip"+(foundCls&&foundCls.has(t.cls)?" fnd":"");
+    d.innerHTML=`<span class="cn">${t.name}</span><span class="ci">${t.interval}</span>`;
+    el.appendChild(d);
+  });
+}
+function l2UpdChordChips(){
+  const ch=L2.prog.chords[L2.activeBarIdx];
+  const foundCls=new Set(L2.chordTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+  document.getElementById("l2ChordChips").querySelectorAll(".chip").forEach((el,i)=>{
+    const tone=ch.fbTones[i];if(!tone)return;el.classList.toggle("fnd",foundCls.has(tone.cls));
+  });
+}
+function l2UpdArpChips(){
+  const ch=L2.prog.chords[L2.activeBarIdx];
+  const foundCls=new Set(L2.arpTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+  document.getElementById("l2ArpChips").querySelectorAll(".chip").forEach((el,i)=>{
+    const tone=ch.fbTones[i];if(!tone)return;el.classList.toggle("fnd",foundCls.has(tone.cls));
+  });
+}
+function l2UpdChordSpan(){
+  const frets=L2.chordTaps.map(t=>t.fret).filter(f=>f>0);
+  const span=frets.length>1?Math.max(...frets)-Math.min(...frets):0;
+  const el=document.getElementById("l2ChordSpan");el.textContent="span: "+span+(span===1?" fret":" frets");el.className="badge "+(span>4?"am":"gr");
+}
+function l2UpdArpSpan(){
+  const frets=L2.arpTaps.map(t=>t.fret).filter(f=>f>0);
+  const span=frets.length>1?Math.max(...frets)-Math.min(...frets):0;
+  const el=document.getElementById("l2ArpSpan");el.textContent="span: "+span+(span===1?" fret":" frets");el.className="badge "+(span>4?"am":"gr");
+}
+
+// ── Message helper ─────────────────────────────────────────────────────────
+function l2SetMsg(elId,type,text){
+  const el=document.getElementById(elId);if(!el)return;
+  el.className="msg"+(type?" "+type+" on":"");el.textContent=text;
+}
+
+// ── Voice leading computation ──────────────────────────────────────────────
+function l2ComputeChordVL(barIdx){
+  const prev=L2.results[barIdx-1];const curr=L2.results[barIdx];
+  if(!prev?.voicingTaps||!curr?.voicingTaps)return;
+  const prevCh=prev.chord;const currCh=curr.chord;
+  // Per-string: find a tap in prev and curr on the same string
+  for(let s=1;s<=6;s++){
+    const pt=prev.voicingTaps.find(t=>t.string===s);
+    const ct=curr.voicingTaps.find(t=>t.string===s);
+    if(!pt||!ct)continue;
+    const fretDist=Math.abs(ct.fret-pt.fret);
+    const ptCls=l2Nc(g2Midi(pt.string,pt.fret));
+    const ctCls=l2Nc(g2Midi(ct.string,ct.fret));
+    const ptIv=prevCh.fbTones.find(t=>t.cls===ptCls)?.interval||'';
+    const ctIv=currCh.fbTones.find(t=>t.cls===ctCls)?.interval||'';
+    const is7to3=['7','b7','bb7'].includes(ptIv)&&['3','b3'].includes(ctIv);
+    L2.chordVLLines.push({fromBar:barIdx-1,toBar:barIdx,fromTap:pt,toTap:ct,dist:fretDist,is7to3,sameStr:true});
+  }
+}
+function l2ComputeArpVL(barIdx){
+  const prev=L2.results[barIdx-1];const curr=L2.results[barIdx];
+  if(!prev?.arpTaps||!curr?.arpTaps)return;
+  const prevCh=prev.chord;const currCh=curr.chord;
+  // Per-string matching — same approach as chord VL
+  for(let s=1;s<=6;s++){
+    const pt=prev.arpTaps.find(t=>t.string===s);
+    const ct=curr.arpTaps.find(t=>t.string===s);
+    if(!pt||!ct)continue;
+    const fretDist=Math.abs(ct.fret-pt.fret);
+    const ptCls=l2Nc(g2Midi(pt.string,pt.fret));
+    const ctCls=l2Nc(g2Midi(ct.string,ct.fret));
+    const ptIv=prevCh.fbTones.find(t=>t.cls===ptCls)?.interval||'';
+    const ctIv=currCh.fbTones.find(t=>t.cls===ctCls)?.interval||'';
+    const is7to3=['7','b7','bb7'].includes(ptIv)&&['3','b3'].includes(ctIv);
+    L2.arpVLLines.push({fromBar:barIdx-1,toBar:barIdx,fromTap:pt,toTap:ct,dist:fretDist,is7to3,sameStr:true});
+  }
+}
+
+// ── Voice leading style ────────────────────────────────────────────────────
+function l2vlStyle(dist,is7to3,sameStr){
+  if(!sameStr)return{col:is7to3?"#B8860B":"#185FA5",w:2,dash:null,lbl:(is7to3?"✓✓ ":"")+dist+"st×"};
+  if(dist===0)return{col:"#888780",w:3,dash:null,lbl:"="};
+  if(dist<=2)return{col:is7to3?"#B8860B":"#3B6D11",w:3,dash:null,lbl:(is7to3?"✓✓ ":"✓ ")+dist+"st"};
+  return{col:"#EF9F27",w:1.5,dash:[4,3],lbl:dist+"st"};
+}
+function l2drawVLLine(ctx,fx,fy,tx,ty,st){
+  ctx.strokeStyle=st.col;ctx.lineWidth=st.w;
+  ctx.setLineDash(st.dash||[]);
+  ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(tx,ty);ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle=st.col;ctx.font="bold 8px "+getComputedStyle(document.body).fontFamily;
+  ctx.textAlign="center";ctx.fillText(st.lbl,(fx+tx)/2,(fy+ty)/2-6);
+}
+
+// ══ C3 GRID ENGINE ══════════════════════════════════════════════════════════
+
+// ── Geometry ────────────────────────────────────────────────────────────────
+const G2={H:130,ST:14,SB:20,SC:6,FR:5,DR:10};
+G2.SG=(G2.H-G2.ST-G2.SB)/(G2.SC-1); // ~19.2px — no dot overlap
+function g2SY(s){return G2.ST+(s-1)*G2.SG;}
+function g2FX(fret,lo,w){return((fret-lo)+0.5)/G2.FR*w;}
+function g2MinFret(){return Math.max(1,(POSITIONS[L2.prog.chordPos]||[1,4])[0]);}
+function g2ArpMinFret(){return Math.max(1,(POSITIONS[L2.prog.arpPos]||[1,4])[0]);}
+// L2 visual convention: string 1 = top = high e (MIDI 64 = OM[6])
+// OM uses: 1=low E(40), 6=high e(64) — opposite of visual
+// g2Midi converts visual string → correct MIDI
+function g2Midi(visualStr,fret){return OM[7-visualStr]+fret;}
+
+// ── Build grid ───────────────────────────────────────────────────────────────
+function l2BuildGrid(gridId,kind){
+  const el=document.getElementById(gridId);if(!el)return;
+  el.innerHTML="";el.style.position="relative";
+  const minFret=kind==="chord"?g2MinFret():g2ArpMinFret();
+  L2.prog.chords.forEach((ch,i)=>{
+    const cell=document.createElement("div");
+    cell.className="l2-cell";
+    cell.style.cssText="background:"+["rgba(24,95,165,0.07)","rgba(15,110,86,0.07)","rgba(83,74,183,0.07)","rgba(133,79,11,0.07)"][i]+";border:0.5px solid "+["rgba(24,95,165,0.35)","rgba(15,110,86,0.35)","rgba(83,74,183,0.35)","rgba(133,79,11,0.35)"][i];
+    cell.innerHTML=
+      "<div class='l2-cell-hdr'>"+
+        "<span class='l2-cell-sym' style='color:"+L2_COLORS[i]+"'>"+ch.symbol+"</span>"+
+        "<span class='l2-cell-fr'>"+minFret+"–"+(minFret+G2.FR-1)+"fr</span>"+
+      "</div>"+
+      "<div class='l2-cell-meta'>"+ch.roman+" · bar "+(i+1)+"</div>"+
+      "<div class='l2-cell-neck'>"+
+        "<div class='l2-cell-slabels'>"+
+          ["e","B","G","D","A","E"].map(s=>"<div class='l2-cell-slabel' style='height:"+Math.round(G2.H/6)+"px;line-height:"+Math.round(G2.H/6)+"px'>"+s+"</div>").join("")+
+        "</div>"+
+        "<div class='l2-cell-canvas-wrap'><canvas style='display:block;width:100%;height:"+G2.H+"px'></canvas></div>"+
+      "</div>";
+    el.appendChild(cell);
+    const canvas=cell.querySelector("canvas");
+    const bi=i;const k=kind;
+    canvas.addEventListener("click",function(e){g2OnTap(e,bi,k,this);});
+    canvas.addEventListener("touchstart",function(e){g2OnTap(e,bi,k,this);},{passive:false});
+  });
+  requestAnimationFrame(()=>{
+    el.querySelectorAll("canvas").forEach((c,i)=>g2Draw(c,i,kind,false));
+    l2drawVLOverlays();
+  });
+}
+
+// ── Tap handler ───────────────────────────────────────────────────────────────
+function g2OnTap(e,barIdx,kind,canvas){
+  try{
+    e.preventDefault();
+    if(kind==="chord"&&(barIdx!==L2.activeBarIdx||L2.phase!=="chord"))return;
+    if(kind==="arp"&&(barIdx!==L2.activeBarIdx||L2.phase!=="arp"))return;
+    const rect=canvas.getBoundingClientRect();
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    const px=cx-rect.left;const py=cy-rect.top;
+    const cssW=canvas.offsetWidth||140;
+    const lo=kind==="chord"?g2MinFret():g2ArpMinFret();
+    const fret=Math.floor(px/cssW*G2.FR)+lo;
+    if(fret<lo||fret>=lo+G2.FR)return;
+    let str=1;let bd=Infinity;
+    for(let s=1;s<=G2.SC;s++){const d=Math.abs(py-g2SY(s));if(d<bd){bd=d;str=s;}}
+    const taps=kind==="chord"?L2.chordTaps:L2.arpTaps;
+    const idx=taps.findIndex(t=>t.string===str&&t.fret===fret);
+    if(idx>=0)taps.splice(idx,1);
+    else taps.push({string:str,fret});
+    g2Draw(canvas,barIdx,kind,false);
+    if(kind==="chord"){
+      l2UpdChordChips();l2UpdChordSpan();
+      const ch=L2.prog.chords[L2.activeBarIdx];
+      const foundCls=new Set(L2.chordTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+      const{must}=l2ChordMandatory(ch);
+      const missing=must.filter(c=>!foundCls.has(c)).map(c=>NC_NAME[c]);
+      if(!missing.length&&L2.chordTaps.length>=1)l2SetMsg("l2ChordMsg","ok","Mandatory tones found — press Check voicing.");
+      else if(missing.length)l2SetMsg("l2ChordMsg","inf","Still need: "+[...new Set(missing)].join(", ")+".");
+      document.getElementById("l2ChordChkBtn").disabled=L2.chordTaps.length===0;
+    }else{
+      l2UpdArpChips();l2UpdArpSpan();
+      const ch=L2.prog.chords[L2.activeBarIdx];
+      const{must,allValid,minNotes}=l2ArpMandatory(ch);
+      const foundCls=new Set(L2.arpTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+      const wrong=L2.arpTaps.filter(t=>!allValid.includes(l2Nc(g2Midi(t.string,t.fret))));
+      const missing=must.filter(c=>!foundCls.has(c)).map(c=>NC_NAME[c]);
+      if(wrong.length)l2SetMsg("l2ArpMsg","no","Non-chord note — chord tones only.");
+      else if(missing.length)l2SetMsg("l2ArpMsg","inf","Still need: "+missing.join(", ")+".");
+      else if(L2.arpTaps.length<minNotes)l2SetMsg("l2ArpMsg","inf",L2.arpTaps.length+" of "+minNotes+" notes tapped.");
+      else l2SetMsg("l2ArpMsg","ok","Ready — press Check arpeggio.");
+      document.getElementById("l2ArpChkBtn").disabled=L2.arpTaps.length===0;
+    }
+  }catch(err){console.error("g2OnTap",err);}
+}
+
+// ── Draw one cell ─────────────────────────────────────────────────────────────
+function g2Draw(canvas,barIdx,kind,showResult){
+  try{
+    const dpr=getDPR();
+    const cssW=canvas.offsetWidth||140;
+    canvas.width=Math.round(cssW*dpr);
+    canvas.height=Math.round(G2.H*dpr);
+    canvas.style.height=G2.H+"px";
+    const ctx=canvas.getContext("2d");
+    ctx.scale(dpr,dpr);
+    const dark=window.matchMedia("(prefers-color-scheme:dark)").matches;
+    const lc=dark?"rgba(255,255,255,0.12)":"rgba(0,0,0,0.09)";
+    const tc=dark?"#888":"#aaa";
+    const lo=kind==="chord"?g2MinFret():g2ArpMinFret();
+    const col=L2_COLORS[barIdx];
+    const ch=L2.prog.chords[barIdx];
+    ctx.clearRect(0,0,cssW,G2.H);
+    // Fret lines
+    for(let i=0;i<=G2.FR;i++){
+      const x=i/G2.FR*cssW;
+      ctx.strokeStyle=i===0?(dark?"rgba(255,255,255,0.45)":"rgba(0,0,0,0.35)"):lc;
+      ctx.lineWidth=i===0?2.5:0.7;
+      ctx.beginPath();ctx.moveTo(x,G2.ST-4);ctx.lineTo(x,G2.H-G2.SB+3);ctx.stroke();
+    }
+    // Fret numbers
+    ctx.fillStyle=tc;ctx.font="7.5px system-ui";ctx.textAlign="center";
+    for(let i=0;i<G2.FR;i++)ctx.fillText(lo+i,(i+0.5)/G2.FR*cssW,G2.H-3);
+    // Strings
+    for(let s=1;s<=G2.SC;s++){
+      const y=g2SY(s);
+      ctx.strokeStyle=lc;ctx.lineWidth=0.4+(G2.SC-s)*0.18;
+      ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cssW,y);ctx.stroke();
+    }
+    // Dots
+    if(kind==="chord"){
+      g2DrawChordDots(ctx,barIdx,lo,cssW,col,ch,showResult,dark,tc);
+    }else{
+      g2DrawArpDots(ctx,barIdx,lo,cssW,col,ch,showResult,dark,tc);
+    }
+  }catch(err){console.error("g2Draw",err);}
+}
+
+function g2DrawChordDots(ctx,barIdx,lo,cssW,col,ch,showResult,dark,tc){
+  const allValid=ch.fbTones.map(t=>t.cls);
+  const isActive=barIdx===L2.activeBarIdx&&L2.phase==="chord";
+  // Confirmed bars (dimmed)
+  L2.results.forEach((res,i)=>{
+    if(i!==barIdx||!res||!res.voicingTaps)return;
+    // This bar's confirmed taps
+    res.voicingTaps.forEach(tap=>{
+      const x=g2FX(tap.fret,lo,cssW);const y=g2SY(tap.string);
+      const cls=l2Nc(g2Midi(tap.string,tap.fret));
+      const isGuide=(ch.guideTones||[]).some(t=>t.cls===cls);
+      g2Dot(ctx,x,y,G2.DR,col+"88",NC_NAME[cls],ch.fbTones.find(t=>t.cls===cls)?.interval||"",isGuide?col:null,false,false);
+    });
+  });
+  // Active taps
+  if(isActive){
+    L2.chordTaps.forEach(tap=>{
+      const x=g2FX(tap.fret,lo,cssW);const y=g2SY(tap.string);
+      const cls=l2Nc(g2Midi(tap.string,tap.fret));
+      const isValid=allValid.includes(cls);
+      const isGuide=(ch.guideTones||[]).some(t=>t.cls===cls);
+      const fill=showResult?(!isValid?"#A32D2D":col):col;
+      g2Dot(ctx,x,y,G2.DR,fill,NC_NAME[cls],ch.fbTones.find(t=>t.cls===cls)?.interval||"",isGuide?fill:null,false,false);
+    });
+  }
+}
+
+function g2DrawArpDots(ctx,barIdx,lo,cssW,col,ch,showResult,dark,tc){
+  const allValid=ch.fbTones.map(t=>t.cls);
+  const isActive=barIdx===L2.activeBarIdx&&L2.phase==="arp";
+  // Confirmed arpeggio — fret-accurate positions (like chord voicing)
+  const confRes=L2.results[barIdx];
+  if(confRes&&confRes.arpTaps&&!isActive){
+    confRes.arpTaps.forEach(tap=>{
+      const x=g2FX(tap.fret,lo,cssW);const y=g2SY(tap.string);
+      const cls=l2Nc(g2Midi(tap.string,tap.fret));
+      const isGuide=(ch.guideTones||[]).some(t=>t.cls===cls);
+      g2Dot(ctx,x,y,G2.DR,col+"88",NC_NAME[cls],ch.fbTones.find(t=>t.cls===cls)?.interval||"",isGuide?col:null,false,false);
+    });
+    return;
+  }
+  // Active arpeggio — fret-accurate positions, tap to toggle
+  if(!isActive||!L2.arpTaps.length)return;
+  L2.arpTaps.forEach(tap=>{
+    const cls=l2Nc(g2Midi(tap.string,tap.fret));
+    const isValid=allValid.includes(cls);
+    const isGuide=(ch.guideTones||[]).some(t=>t.cls===cls);
+    const fill=showResult?(!isValid?"#A32D2D":col):col;
+    g2Dot(ctx,g2FX(tap.fret,lo,cssW),g2SY(tap.string),G2.DR,fill,NC_NAME[cls],
+      ch.fbTones.find(t=>t.cls===cls)?.interval||"",isGuide?fill:null,false,false);
+  });
+}
+
+function g2Dot(ctx,x,y,r,fill,name,sub,guideFill,isLast,isFirst){
+  // Last note white ring
+  if(isLast){
+    ctx.strokeStyle="#fff";ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.arc(x,y,r+3,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle=fill;ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.arc(x,y,r+3,0,Math.PI*2);ctx.stroke();
+  }
+  // First note triangle
+  if(isFirst){
+    ctx.fillStyle=fill;ctx.beginPath();
+    ctx.moveTo(x,y-r-7);ctx.lineTo(x-4,y-r-1);ctx.lineTo(x+4,y-r-1);
+    ctx.closePath();ctx.fill();
+  }
+  // Guide ring
+  if(guideFill){
+    ctx.strokeStyle=guideFill;ctx.lineWidth=1.5;ctx.setLineDash([2,2]);
+    ctx.beginPath();ctx.arc(x,y,r+4,0,Math.PI*2);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  // Dot
+  ctx.fillStyle=fill;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+  // Name
+  ctx.fillStyle="#fff";ctx.font="bold 8px system-ui";ctx.textAlign="center";
+  ctx.fillText(name,x,y+3);
+  // Sub-label (interval or fret)
+  if(sub){
+    ctx.fillStyle=guideFill||"#999";ctx.font="6.5px system-ui";
+    ctx.fillText(sub,x,y+r+9);
+  }
+}
+
+// ── Redraw one cell ──────────────────────────────────────────────────────────
+function l2RedrawCell(kind,barIdx,showResult){
+  const gridId=kind==="chord"?"l2ChordGrid":"l2ArpGrid";
+  const grid=document.getElementById(gridId);if(!grid)return;
+  const canvases=grid.querySelectorAll("canvas");
+  if(canvases[barIdx])g2Draw(canvases[barIdx],barIdx,kind,showResult);
+  // Redraw other bars too (VL lines affect all)
+  canvases.forEach((c,i)=>{if(i!==barIdx)g2Draw(c,i,kind,!!(L2.results[i]?.[kind==="chord"?"voicingTaps":"arpTaps"]));});
+  l2drawVLOverlays();
+}
+
+// ── VL SVG overlays between same-row cells ───────────────────────────────────
+function l2drawVLOverlays(){
+  document.querySelectorAll(".l2-vl-svg").forEach(e=>e.remove());
+  ["chord","arp"].forEach(kind=>{
+    const gridId=kind==="chord"?"l2ChordGrid":"l2ArpGrid";
+    const xrowId=kind==="chord"?"l2ChordXrow":"l2ArpXrow";
+    const lines=kind==="chord"?L2.chordVLLines:L2.arpVLLines;
+    const grid=document.getElementById(gridId);if(!grid)return;
+    const lo=kind==="chord"?g2MinFret():g2ArpMinFret();
+    const canvases=Array.from(grid.querySelectorAll("canvas"));
+    // Same-row pairs: 0→1, 2→3
+    [[0,1],[2,3]].forEach(([a,b])=>{
+      if(b>=L2.chordCount)return;
+      const cA=canvases[a];const cB=canvases[b];if(!cA||!cB)return;
+      const rowLines=lines.filter(v=>v.fromBar===a&&v.toBar===b);
+      if(!rowLines.length)return;
+      const gR=grid.getBoundingClientRect();
+      const rA=cA.getBoundingClientRect();const rB=cB.getBoundingClientRect();
+      if(!rA.width||!rB.width)return;
+      const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+      svg.className="l2-vl-svg";
+      const svgX=rA.left-gR.left;const svgW=rB.right-rA.left;
+      const svgY=rA.top-gR.top-6;const svgH=G2.H+20;
+      svg.style.cssText="position:absolute;left:"+svgX+"px;top:"+svgY+"px;width:"+svgW+"px;height:"+svgH+"px;pointer-events:none;overflow:visible";
+      rowLines.forEach(vl=>{
+        let xA,xB,yA,yB;
+        const cAW=rA.width;const cBS=rB.left-rA.left;const cBW=rB.width;
+        if(kind==="chord"){
+          xA=g2FX(vl.fromTap.fret,lo,cAW);xB=cBS+g2FX(vl.toTap.fret,lo,cBW);
+          yA=g2SY(vl.fromTap.string)+6;yB=g2SY(vl.toTap.string)+6;
+        }else{
+          // Arp VL — fret-accurate positions (same-string pairs)
+          xA=g2FX(vl.fromTap.fret,lo,cAW);xB=cBS+g2FX(vl.toTap.fret,lo,cBW);
+          yA=g2SY(vl.fromTap.string)+6;yB=g2SY(vl.toTap.string)+6;
+        }
+        const vs=l2vlStyle(vl.dist,vl.is7to3,vl.sameStr);
+        const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+        ln.setAttribute("x1",xA);ln.setAttribute("y1",yA);
+        ln.setAttribute("x2",xB);ln.setAttribute("y2",yB);
+        ln.setAttribute("stroke",vs.col);ln.setAttribute("stroke-width",vs.w);
+        if(vs.dash)ln.setAttribute("stroke-dasharray",vs.dash.join(","));
+        svg.appendChild(ln);
+        // Label
+        const tx=(xA+xB)/2;const ty=Math.min(yA,yB)-6;
+        const txt=document.createElementNS("http://www.w3.org/2000/svg","text");
+        txt.setAttribute("x",tx);txt.setAttribute("y",ty);txt.setAttribute("text-anchor","middle");
+        txt.setAttribute("font-size",vs.lbl.includes("✓")?"8.5":"8");
+        txt.setAttribute("font-weight",vs.lbl.includes("✓")?"700":"500");
+        txt.setAttribute("fill",vs.col);txt.setAttribute("font-family","system-ui");
+        txt.textContent=vs.lbl;svg.appendChild(txt);
+      });
+      grid.appendChild(svg);
+    });
+    // Cross-row pair 1→2 as badges
+    const xrow=document.getElementById(xrowId);if(!xrow)return;xrow.innerHTML="";
+    const cross=lines.filter(v=>v.fromBar===1&&v.toBar===2);
+    if(cross.length){
+      const lbl=document.createElement("span");
+      lbl.textContent=L2.prog.chords[1].symbol+"→"+L2.prog.chords[2].symbol+": ";
+      xrow.appendChild(lbl);
+      cross.forEach(vl=>{
+        const vs=l2vlStyle(vl.dist,vl.is7to3,vl.sameStr);
+        const b=document.createElement("span");
+        b.style.cssText="color:"+vs.col+";background:"+vs.col+"18;border:0.5px solid "+vs.col+"44;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:"+(vs.lbl.includes("✓")?"700":"400");
+        const fa=NC_NAME[l2Nc(g2Midi(vl.fromTap.string,vl.fromTap.fret))];
+        const fb=NC_NAME[l2Nc(g2Midi(vl.toTap.string,vl.toTap.fret))];
+        b.textContent=fa+"→"+fb+" "+vs.lbl;
+        xrow.appendChild(b);
+      });
+    }
+  });
+}
+
+// ── Check chord now triggers grid redraw + VL ─────────────────────────────────
+// (patch l2CheckChord and l2CheckArp calls to redraw grid properly)
+
+function l2OnResize(){
+  ["l2ChordGrid","l2ArpGrid"].forEach(id=>{
+    const grid=document.getElementById(id);if(!grid)return;
+    const kind=id.includes("Chord")?"chord":"arp";
+    grid.querySelectorAll("canvas").forEach((c,i)=>g2Draw(c,i,kind,!!(L2.results[i]?.[kind==="chord"?"voicingTaps":"arpTaps"])));
+  });
+  l2drawVLOverlays();
+}
+
+// ── Keep old functions as no-ops so no reference errors ──────────────────────
+function l2DrawBase(){return{};}
+function l2DrawDot(){}
+function l2DrawChords(){}
+function l2DrawArp(){}
+function l2OnChordTap(){}
+function l2OnArpTap(){}
+
+function l2ShowSummary(){
+  document.getElementById("l2SummaryCard").style.display="block";
+  document.getElementById("l2SumMeta").textContent=
+    L2.prog.progName+" — "+L2.prog.key+" · "+L2.chordCount+" chords · chord: "+L2.prog.chordPos+" · arp: "+L2.prog.arpPos;
+  const content=document.getElementById("l2SumContent");content.innerHTML="";
+  function vlRow(vl){
+    const fromCh=L2.prog.chords[vl.fromBar];const toCh=L2.prog.chords[vl.toBar];
+    const st=l2vlStyle(vl.dist,vl.is7to3,vl.sameStr);
+    const q=vl.is7to3?st.lbl+" guide tone":vl.dist===0?"common tone":vl.dist<=2?"step ("+vl.dist+"st)":"leap ("+vl.dist+"st)";
+    const strNote=vl.sameStr?" str "+vl.fromTap.string:" cross-str";
+    const dash=st.dash?"background:repeating-linear-gradient(90deg,"+st.col+" 0,"+st.col+" 4px,transparent 4px,transparent 7px)":"background:"+st.col;
+    return`<div class="vl-sum-row">
+      <span style="color:var(--color-text-secondary);min-width:44px">b${vl.fromBar+1}→${vl.toBar+1}</span>
+      <span style="font-weight:500;color:var(--color-text-primary)">${fromCh.symbol}→${toCh.symbol}</span>
+      <span style="font-size:10px;color:var(--color-text-tertiary)">${strNote}</span>
+      <div style="flex:1;height:2px;border-radius:1px;${dash}"></div>
+      <span style="color:${st.col};font-weight:500">${q}</span>
+    </div>`;
+  }
+  if(L2.chordVLLines.length){
+    content.innerHTML+=`<div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:.5rem 0 .2rem">Guide tone voice leading</div>`;
+    L2.chordVLLines.forEach(vl=>{content.innerHTML+=vlRow(vl);});
+  }
+  if(L2.arpVLLines.length){
+    content.innerHTML+=`<div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:.75rem 0 .2rem">Arpeggio connections (per string)</div>`;
+    L2.arpVLLines.forEach(vl=>{content.innerHTML+=vlRow(vl);});
+  }
+  if(!L2.chordVLLines.length&&!L2.arpVLLines.length){
+    content.innerHTML=`<p style="font-size:13px;color:var(--color-text-secondary)">Complete more bars to see voice leading data.</p>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// LEVEL 3 — Chord Substitutions
+// ══════════════════════════════════════════════════════════════════════════
+
+const L3_COLOR="#534AB7";
+
+const L3={
+  started:false,
+  chordCount:2,
+  density:"basic",
+  subMode:"classic",
+  prog:null,
+  phase:"spell",
+  spellStep:"spell",  // "spell" | "tension"
+  barIdx:0,
+  subFamily:null,
+  subChord:null,
+  spellSel:new Set(),
+  tensionSel:{},      // {noteName: selectedInterval}
+  fretTaps:[],
+  results:[],
+  vlLines:[],
+};
+
+// ── Substitution engine ────────────────────────────────────────────────────
+// study:2 = essential (3rd/b3rd family)
+// study:3 = classic advanced (6th, tritone, altered)
+// study:4 = modern (Scofield, Metheny, Rosenwinkel, Breau)
+// weight: higher = more likely to appear when multiple subs available
+function l3GetSubs(chord){
+  const rootCls=NC_MAP[chord.root];const subs=[];const q=chord.quality;
+
+  // ── Dominant 7th variants ─────────────────────────────────────────────
+  if(["dom7","dom9","dom13","dom7b9","dom7b9b13","dom7alt"].includes(q)){
+    // Study 2: m7b5 from major 3rd (D over Bb7)
+    const thirdCls=(rootCls+4)%12;
+    subs.push({family:"3rd",root:NC_NAME[thirdCls],quality:"m7b5",
+      symbol:NC_NAME[thirdCls]+"m7b5",sound:"dominant 9th colour",study:2,weight:10});
+    // Study 3: tritone dom7
+    const tritoneCls=(rootCls+6)%12;
+    subs.push({family:"tritone",root:NC_NAME[tritoneCls],quality:"dom7",
+      symbol:NC_NAME[tritoneCls]+"7",sound:"half-step bass approach",study:3,weight:8});
+    // Study 3: 6th-built m7 (not dom7alt — altered context needs different approach)
+    if(q!=="dom7alt"){
+      const sixthCls=(rootCls+9)%12;
+      subs.push({family:"6th",root:NC_NAME[sixthCls],quality:"m7",
+        symbol:NC_NAME[sixthCls]+"m7",sound:"13th colour",study:3,weight:7});
+    }
+    // Study 4: maj7 from 5th — Lydian dominant (Fmaj7 over Bb7)
+    const fifthCls=(rootCls+7)%12;
+    subs.push({family:"5th-maj7",root:NC_NAME[fifthCls],quality:"maj7",
+      symbol:NC_NAME[fifthCls]+"maj7",sound:"Lydian dominant — Scofield/Metheny",study:4,weight:3});
+    // Study 4: m7 from 5th — suspended/Dorian (Fm7 over Bb7)
+    subs.push({family:"5th-m7",root:NC_NAME[fifthCls],quality:"m7",
+      symbol:NC_NAME[fifthCls]+"m7",sound:"suspended dominant — Metheny",study:4,weight:2});
+    // Study 4: maj7 from b7 — Lydian b7/Rosenwinkel (Abmaj7 over Bb7)
+    const b7Cls=(rootCls+10)%12;
+    subs.push({family:"b7-maj7",root:NC_NAME[b7Cls],quality:"maj7",
+      symbol:NC_NAME[b7Cls]+"maj7",sound:"Lydian b7 colour — Rosenwinkel",study:4,weight:2});
+  }
+
+  // ── Altered dominant ──────────────────────────────────────────────────
+  if(q==="dom7alt"){
+    // Study 3: maj7 from b9 (full altered scale)
+    const b9Cls=(rootCls+1)%12;
+    subs.push({family:"altered",root:NC_NAME[b9Cls],quality:"maj7",
+      symbol:NC_NAME[b9Cls]+"maj7",sound:"full altered scale in 4 notes",study:3,weight:9});
+  }
+
+  // ── Minor 7th variants ────────────────────────────────────────────────
+  if(["m7","m9","m11","mMaj7"].includes(q)){
+    // Study 2: maj7 from b3rd (Ebmaj7 over Cm7)
+    const b3Cls=(rootCls+3)%12;
+    subs.push({family:"b3rd",root:NC_NAME[b3Cls],quality:"maj7",
+      symbol:NC_NAME[b3Cls]+"maj7",sound:"minor 9th colour",study:2,weight:10});
+    // Study 3: 6th-built m7 (Am7 over Cm7)
+    if(q!=="mMaj7"){
+      const sixthCls=(rootCls+9)%12;
+      subs.push({family:"6th",root:NC_NAME[sixthCls],quality:"m7",
+        symbol:NC_NAME[sixthCls]+"m7",sound:"Dorian/minor 13th",study:3,weight:7});
+    }
+    // Study 4: m7 from 5th — open Cm11 (Gm7 over Cm7)
+    const fifthCls=(rootCls+7)%12;
+    subs.push({family:"5th-m7",root:NC_NAME[fifthCls],quality:"m7",
+      symbol:NC_NAME[fifthCls]+"m7",sound:"open minor 11th — Metheny",study:4,weight:3});
+    // Study 4: maj7 from b7 — Dorian maj7 (Bbmaj7 over Cm7)
+    const b7Cls=(rootCls+10)%12;
+    subs.push({family:"b7-maj7",root:NC_NAME[b7Cls],quality:"maj7",
+      symbol:NC_NAME[b7Cls]+"maj7",sound:"Dorian maj7 colour — Metheny/Rosenwinkel",study:4,weight:2});
+    // Study 4: maj7 from b6 — Locrian#2 (Abmaj7 over Cm7)
+    const b6Cls=(rootCls+8)%12;
+    subs.push({family:"b6-maj7",root:NC_NAME[b6Cls],quality:"maj7",
+      symbol:NC_NAME[b6Cls]+"maj7",sound:"Locrian#2 — Rosenwinkel",study:4,weight:2});
+  }
+
+  // ── Half-diminished ───────────────────────────────────────────────────
+  if(q==="m7b5"){
+    // Study 2: m7 from b3rd (Fm7 over Dm7b5)
+    const b3Cls=(rootCls+3)%12;
+    subs.push({family:"b3rd",root:NC_NAME[b3Cls],quality:"m7",
+      symbol:NC_NAME[b3Cls]+"m7",sound:"adds b9 colour",study:2,weight:10});
+    // Study 4: maj7 from b5 — Locrian#2 (Abmaj7 over Dm7b5)
+    const b5Cls=(rootCls+6)%12;
+    subs.push({family:"b5-maj7",root:NC_NAME[b5Cls],quality:"maj7",
+      symbol:NC_NAME[b5Cls]+"maj7",sound:"Locrian#2 — Rosenwinkel",study:4,weight:3});
+  }
+
+  // ── Major 7th variants ────────────────────────────────────────────────
+  if(["maj7","maj9"].includes(q)){
+    // Study 2: m7 from major 3rd (Em7 over Cmaj7)
+    const thirdCls=(rootCls+4)%12;
+    subs.push({family:"3rd",root:NC_NAME[thirdCls],quality:"m7",
+      symbol:NC_NAME[thirdCls]+"m7",sound:"major 9th colour",study:2,weight:10});
+    // Study 4: maj7 from 5th — Lydian (Gmaj7 over Cmaj7)
+    const fifthCls=(rootCls+7)%12;
+    subs.push({family:"5th-maj7",root:NC_NAME[fifthCls],quality:"maj7",
+      symbol:NC_NAME[fifthCls]+"maj7",sound:"Lydian colour — Scofield/Metheny",study:4,weight:3});
+    // Study 4: m7b5 from 7th — maj9 no root (Bm7b5 over Cmaj7)
+    const majSevCls=(rootCls+11)%12;
+    subs.push({family:"7th-m7b5",root:NC_NAME[majSevCls],quality:"m7b5",
+      symbol:NC_NAME[majSevCls]+"m7b5",sound:"maj9 no root — Breau/Rosenwinkel",study:4,weight:2});
+    // Study 4: m7 from 2nd — 9th sus (Dm7 over Cmaj7)
+    const secondCls=(rootCls+2)%12;
+    subs.push({family:"2nd-m7",root:NC_NAME[secondCls],quality:"m7",
+      symbol:NC_NAME[secondCls]+"m7",sound:"9th sus colour — Metheny",study:4,weight:2});
+  }
+
+  // ── Fallback for dim7, aug, etc. ──────────────────────────────────────
+  if(!subs.length){
+    subs.push({family:"3rd",root:chord.root,quality:q,
+      symbol:makeSym(chord.root,q),sound:"original chord",study:2,weight:10});
+  }
+
+  // Filter by subMode
+  if(L3.subMode==="classic"){
+    const filtered=subs.filter(s=>s.study<=3);
+    return filtered.length?filtered:subs;
+  }
+  return subs;
+}
+
+// ── Populate L3 settings in the shared intro overlay ──────────────────────
+function l3PopulateMainIntro(){
+  const ccEl=document.getElementById("iL3CountRow");if(!ccEl)return;
+  ccEl.innerHTML="";
+  [2,3,4].forEach(n=>{
+    const b=document.createElement("button");
+    b.className="intro-opt"+(L3.chordCount===n?" on":"");
+    b.textContent=n+" chords";
+    b.onclick=()=>{L3.chordCount=n;ccEl.querySelectorAll(".intro-opt").forEach((x,i)=>x.classList.toggle("on",[2,3,4][i]===n));};
+    ccEl.appendChild(b);
+  });
+  const dEl=document.getElementById("iL3DensRow");if(!dEl)return;dEl.innerHTML="";
+  ["basic","extended","altered"].forEach(d=>{
+    const b=document.createElement("button");
+    b.className="intro-opt"+(L3.density===d?" on":"");
+    b.textContent=d.charAt(0).toUpperCase()+d.slice(1);
+    b.onclick=()=>{L3.density=d;dEl.querySelectorAll(".intro-opt").forEach((x,i)=>x.classList.toggle("on",["basic","extended","altered"][i]===d));};
+    dEl.appendChild(b);
+  });
+  // Sub mode toggle
+  const smEl=document.getElementById("iL3SubMode");if(!smEl)return;smEl.innerHTML="";
+  ["classic","modern"].forEach(m=>{
+    const b=document.createElement("button");
+    b.className="intro-opt"+(L3.subMode===m?" on":"");
+    b.textContent=m==="classic"?"Classic":"Classic + Modern";
+    b.onclick=()=>{L3.subMode=m;smEl.querySelectorAll(".intro-opt").forEach((x,i)=>x.classList.toggle("on",["classic","modern"][i]===m));};
+    smEl.appendChild(b);
+  });
+}
+
+// ── Build progression ──────────────────────────────────────────────────────
+function l3BuildProg(){
+  const pool=STANDALONE_IDS.filter(id=>PROGS[id].tier<=2);
+  const pid=rnd(pool);const tmpl=PROGS[pid];
+  if(!S.keyDeck.length)S.keyDeck=buildKeyDeck();
+  const key=S.keyDeck.pop();
+  const di=L3.density==="basic"?0:L3.density==="extended"?1:2;
+  const arpPos=rnd(POS_LABELS);
+  const tonic=NC_MAP[key];
+  const chords=tmpl.chords.slice(0,L3.chordCount).map(([deg,roman,variants])=>{
+    const baseDeg=deg.split("/")[0];
+    const rootCls=(tonic+DEG[baseDeg])%12;
+    const rootName=NC_NAME[rootCls];
+    const quality=variants[Math.min(di,variants.length-1)];
+    const fbTones=(FB_IV[quality]||[]).map((iv,i)=>({
+      name:NC_NAME[((rootCls+iv)%12+12)%12],
+      cls:((rootCls+iv)%12+12)%12,
+      interval:(FB_LBL[quality]||[])[i]||""
+    }));
+    const fbNames=[...new Set(fbTones.map(t=>t.name))];
+    const guideTones=fbTones.filter(t=>["3","b3","7","b7","bb7"].includes(t.interval));
+    const subs=l3GetSubs({root:rootName,quality,fbTones,guideTones});
+    return{root:rootName,quality,roman,symbol:makeSym(rootName,quality),fbTones,fbNames,guideTones,subs};
+  });
+  return{key,progName:tmpl.name,chords,arpPos};
+}
+
+// ── New progression ────────────────────────────────────────────────────────
+function l3NewProg(){
+  L3.prog=l3BuildProg();
+  L3.phase="spell";L3.barIdx=0;
+  L3.subFamily=null;L3.subChord=null;
+  L3.spellSel=new Set();L3.tensionSel={};L3.spellStep="spell";L3.fretTaps=[];L3.results=[];L3.vlLines=[];
+  document.getElementById("l3ProgBar").style.display="block";
+  document.getElementById("l3SubTabs").style.display="flex";
+  document.getElementById("l3SummaryCard").style.display="none";
+  document.getElementById("l3SpellSection").style.display="none";
+  document.getElementById("l3FretSection").style.display="none";
+  l3BuildSessionControls();
+  l3BuildPosRow();
+  l3RenderProgBar();
+  l3SetPhase("spell");
+}
+
+// ── Session controls top bar ───────────────────────────────────────────────
+function l3BuildSessionControls(){
+  document.getElementById("l3TopBar").style.display="flex";
+  const cr=document.getElementById("l3CountRow");cr.innerHTML="";
+  [2,3,4].forEach(n=>{
+    const b=document.createElement("button");b.className="l2-count-btn"+(L3.chordCount===n?" on":"");
+    b.textContent=n;b.id="l3cnt"+n;
+    b.onclick=()=>{
+      if(L3.chordCount===n)return;
+      L3.chordCount=n;
+      [2,3,4].forEach(x=>{const el=document.getElementById("l3cnt"+x);if(el)el.classList.toggle("on",x===n);});
+      l3NewProg();
+    };
+    cr.appendChild(b);
+  });
+}
+
+// ── Arp position ──────────────────────────────────────────────────────────
+function l3ArpMinFret(){return Math.max(1,(POSITIONS[L3.prog.arpPos]||[1,4])[0]);}
+
+function l3BuildPosRow(){
+  const el=document.getElementById("l3FretPosRow");if(!el)return;el.innerHTML="";
+  POS_LABELS.forEach(p=>{
+    const b=document.createElement("button");
+    b.className="l2-pos-btn"+(L3.prog.arpPos===p?" on":"");
+    b.textContent=p;
+    b.onclick=()=>{
+      L3.prog.arpPos=p;
+      el.querySelectorAll(".l2-pos-btn").forEach((x,i)=>x.classList.toggle("on",POS_LABELS[i]===p));
+      // Invalidate fretTaps from current bar onward
+      L3.fretTaps=[];
+      for(let i=L3.barIdx;i<L3.chordCount;i++){if(L3.results[i])delete L3.results[i].fretTaps;}
+      l3BuildFretGrid();
+      document.getElementById("l3FretChkBtn").style.display="inline-block";
+      document.getElementById("l3FretChkBtn").disabled=true;
+      document.getElementById("l3FretNextBtn").style.display="none";
+      document.getElementById("l3FretDoneBtn").style.display="none";
+      const _sub=L3.results[L3.barIdx]?.subChord;
+      l3SetMsg("l3FretMsg","inf","Position changed — re-tap arpeggio for "+(_sub?.symbol||"sub chord")+".");
+    };
+    el.appendChild(b);
+  });
+}
+
+// ── Progression bar ───────────────────────────────────────────────────────
+function l3RenderProgBar(){
+  const p=L3.prog;
+  document.getElementById("l3ProgKey").textContent=p.progName+" — "+p.key+" · arp: "+p.arpPos+" pos";
+  const barsEl=document.getElementById("l3Bars");barsEl.innerHTML="";
+  barsEl.style.gridTemplateColumns=`repeat(${L3.chordCount},1fr)`;
+  p.chords.forEach((ch,i)=>{
+    const res=L3.results[i];
+    const isActive=i===L3.barIdx;
+    const spellDone=res&&res.subChord;
+    const fretDone=res&&res.fretTaps;
+    const stageLabel=isActive?(L3.phase==="spell"?"→ spell":"→ fretboard"):fretDone?"✓ done":spellDone?"spelled ✓":"";
+    const subSym=res?.subChord?.symbol||"sub: ?";
+    const d=document.createElement("div");d.className="l2-bar bar-c"+i+(isActive?" active":"");
+    d.innerHTML=`<div class="l2-bar-sym" style="color:${L2_COLORS[i]}">${ch.symbol}</div>
+      <div style="font-size:9px;color:${L3_COLOR}">${subSym}</div>
+      <div class="l2-bar-num">bar ${i+1}</div>
+      <div class="l2-bar-stage">${stageLabel}</div>`;
+    barsEl.appendChild(d);
+  });
+}
+
+// ── Phase switching ────────────────────────────────────────────────────────
+function l3SetPhase(phase){
+  L3.phase=phase;L3.barIdx=0;
+  document.getElementById("l3SubA").classList.toggle("active",phase==="spell");
+  document.getElementById("l3SubB").classList.toggle("active",phase==="fretboard");
+  if(phase==="spell"){
+    document.getElementById("l3SpellSection").style.display="block";
+    document.getElementById("l3FretSection").style.display="none";
+    l3LoadSpellBar(0);
+  }else{
+    document.getElementById("l3SpellSection").style.display="none";
+    document.getElementById("l3FretSection").style.display="block";
+    l3BuildFretGrid();
+    l3LoadFretBar(0);
+  }
+  l3RenderProgBar();
+}
+
+// ── Phase 3a — Spell ──────────────────────────────────────────────────────
+function l3LoadSpellBar(idx){
+  L3.barIdx=idx;L3.subFamily=null;L3.subChord=null;
+  L3.spellSel=new Set();L3.tensionSel={};L3.spellStep="spell";
+  const ch=L3.prog.chords[idx];
+  document.getElementById("l3SpellActiveHdr").textContent=
+    "Bar "+(idx+1)+" · "+ch.symbol+" ("+ch.roman+") · select a substitution family";
+  document.getElementById("l3OrigSym").textContent=ch.symbol;
+  document.getElementById("l3OrigRoman").textContent=ch.roman+" · "+ch.quality;
+  // Build family buttons from available subs
+  const famRow=document.getElementById("l3FamilyRow");famRow.innerHTML="";
+  ch.subs.forEach(sub=>{
+    const b=document.createElement("button");
+    b.className="l3-family-btn";
+    const famLabel={
+      "3rd":"3rd family","b3rd":"b3rd family","6th":"6th-built",
+      "tritone":"Tritone","altered":"Altered",
+      "5th-maj7":"5th — maj7 (Lydian)","5th-m7":"5th — m7 (sus)",
+      "b7-maj7":"b7 — maj7 (Lydian b7)","b6-maj7":"b6 — maj7 (Locrian#2)",
+      "b5-maj7":"b5 — maj7 (Locrian#2)","5th-m7-min":"5th — m7 (open 11th)",
+      "b7-maj7-min":"b7 — maj7 (Dorian)","7th-m7b5":"7th — m7b5 (maj9)",
+      "2nd-m7":"2nd — m7 (9th sus)"
+    }[sub.family]||sub.family;
+    b.textContent=famLabel+" → "+sub.symbol;
+    b.dataset.family=sub.family;
+    b.onclick=()=>l3SelectFamily(sub,b);
+    famRow.appendChild(b);
+  });
+  document.getElementById("l3SubInfo").style.display="none";
+  document.getElementById("l3NoteGridWrap").style.display="none";
+  document.getElementById("l3TensionWrap").style.display="none";
+  document.getElementById("l3SpellChkBtn").disabled=true;
+  document.getElementById("l3SpellChkBtn").style.display="inline-block";
+  document.getElementById("l3SpellClearBtn").style.display="inline-block";
+  document.getElementById("l3TensionChkBtn").style.display="none";
+  document.getElementById("l3TensionChkBtn").disabled=true;
+  document.getElementById("l3SpellNextBtn").style.display="none";
+  document.getElementById("l3SpellDoneBtn").style.display="none";
+  l3SetMsg("l3SpellMsg","inf","Select a substitution family for "+ch.symbol+".");
+}
+
+function l3SelectFamily(sub,btn){
+  document.getElementById("l3FamilyRow").querySelectorAll(".l3-family-btn").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  L3.subFamily=sub.family;
+  // Compute sub chord tones from FB_IV
+  const subRootCls=NC_MAP[sub.root];
+  const subFbTones=(FB_IV[sub.quality]||[]).map((iv,i)=>({
+    name:NC_NAME[((subRootCls+iv)%12+12)%12],
+    cls:((subRootCls+iv)%12+12)%12,
+    interval:(FB_LBL[sub.quality]||[])[i]||""
+  }));
+  const subFbNames=[...new Set(subFbTones.map(t=>t.name))];
+  const subGuideTones=subFbTones.filter(t=>["3","b3","7","b7","bb7"].includes(t.interval));
+  L3.subChord={root:sub.root,quality:sub.quality,symbol:sub.symbol,fbTones:subFbTones,fbNames:subFbNames,guideTones:subGuideTones};
+  // Show sub info panel
+  const famLabel={
+    "3rd":"Built from the 3rd","b3rd":"Built from the b3rd",
+    "6th":"Built from the 6th","tritone":"Tritone substitution",
+    "altered":"Altered substitution",
+    "5th-maj7":"Built from the 5th (maj7 — Lydian dominant)",
+    "5th-m7":"Built from the 5th (m7 — suspended)",
+    "b7-maj7":"Built from the b7 (maj7 — Lydian b7)",
+    "b6-maj7":"Built from the b6 (maj7 — Locrian#2)",
+    "b5-maj7":"Built from the b5 (maj7 — Locrian#2)",
+    "5th-m7-min":"Built from the 5th (m7 — open minor 11th)",
+    "b7-maj7-min":"Built from the b7 (maj7 — Dorian)",
+    "7th-m7b5":"Built from the 7th (m7b5 — maj9 no root)",
+    "2nd-m7":"Built from the 2nd (m7 — 9th sus)"
+  }[sub.family]||sub.family;
+  document.getElementById("l3SubLabelTxt").textContent=famLabel;
+  document.getElementById("l3SubSym").textContent=sub.symbol;
+  document.getElementById("l3SoundLabel").textContent=sub.sound;
+  document.getElementById("l3SubInfo").style.display="block";
+  // Show note grid
+  document.getElementById("l3NoteGridWrap").style.display="block";
+  l3BuildNoteGrid();
+  l3SetMsg("l3SpellMsg","inf","Spell the substitute chord — select all its notes.");
+}
+
+function l3BuildNoteGrid(){
+  const g=document.getElementById("l3NoteGrid");g.innerHTML="";
+  L3.spellSel=new Set();
+  NN.forEach(n=>{
+    const cell=document.createElement("div");
+    cell.style.cssText="display:flex;flex-direction:column;align-items:center;gap:3px";
+    const b=document.createElement("button");
+    b.className="nb";b.id="l3nb_"+n;b.textContent=n;
+    b.onclick=()=>l3TogNote(n);
+    const l=document.createElement("div");l.className="il";l.id="l3il_"+n;l.textContent=" ";
+    cell.appendChild(b);cell.appendChild(l);g.appendChild(cell);
+  });
+}
+
+function l3TogNote(n){
+  const btn=document.getElementById("l3nb_"+n);if(!btn)return;
+  if(L3.spellSel.has(n)){
+    L3.spellSel.delete(n);
+    btn.style.background="";btn.style.color="";btn.style.borderColor="";btn.style.fontWeight="";
+  }else{
+    L3.spellSel.add(n);
+    btn.style.background="#534AB7";btn.style.color="#EAE9F8";btn.style.borderColor="#534AB7";btn.style.fontWeight="500";
+  }
+  document.getElementById("l3SpellChkBtn").disabled=L3.spellSel.size===0;
+}
+
+function l3ClearSpell(){
+  if(L3.spellStep!=="spell")return;
+  L3.spellSel=new Set();
+  NN.forEach(n=>{
+    const b=document.getElementById("l3nb_"+n);if(!b)return;
+    b.style.background="";b.style.color="";b.style.borderColor="";b.style.fontWeight="";b.className="nb";
+    const l=document.getElementById("l3il_"+n);if(l){l.className="il";l.textContent=" ";}
+  });
+  document.getElementById("l3SpellChkBtn").disabled=true;
+}
+
+function l3CheckSpell(){
+  if(!L3.subChord||!L3.subFamily){
+    l3SetMsg("l3SpellMsg","no","Select a substitution family first.");return;
+  }
+  const sub=L3.subChord;
+  const correct=new Set(sub.fbNames);
+  const spellMap={};sub.fbTones.forEach(t=>{if(!spellMap[t.name])spellMap[t.name]=t.interval;});
+  let ok=true;
+  NN.forEach(n=>{
+    const btn=document.getElementById("l3nb_"+n);const lbl=document.getElementById("l3il_"+n);
+    if(!btn)return;
+    btn.className="nb";btn.style.background="";btn.style.color="";btn.style.borderColor="";btn.style.fontWeight="";
+    if(lbl){lbl.className="il";lbl.textContent=" ";}
+    if(correct.has(n)&&L3.spellSel.has(n)){
+      btn.style.background="#3B6D11";btn.style.color="#EAF3DE";btn.style.borderColor="#3B6D11";btn.style.fontWeight="500";
+      // No label here — tensions shown in Step B only
+    }else if(!correct.has(n)&&L3.spellSel.has(n)){
+      btn.style.background="#A32D2D";btn.style.color="#FCEBEB";btn.style.borderColor="#A32D2D";btn.style.fontWeight="500";ok=false;
+    }else if(correct.has(n)&&!L3.spellSel.has(n)){
+      btn.style.background="#854F0B";btn.style.color="#FAEEDA";btn.style.borderColor="#854F0B";btn.style.fontWeight="500";ok=false;
+    }
+  });
+  if(ok){
+    if(!L3.results[L3.barIdx])L3.results[L3.barIdx]={originalChord:L3.prog.chords[L3.barIdx]};
+    L3.results[L3.barIdx].subChord=L3.subChord;
+    L3.results[L3.barIdx].subFamily=L3.subFamily;
+    L3.results[L3.barIdx].subSound=L3.prog.chords[L3.barIdx].subs.find(s=>s.family===L3.subFamily)?.sound||"";
+    l3SetMsg("l3SpellMsg","ok","Correct! Now identify what each note adds over "+L3.prog.chords[L3.barIdx].symbol+".");
+    document.getElementById("l3SpellChkBtn").style.display="none";
+    document.getElementById("l3SpellClearBtn").style.display="none";
+    l3ShowTensionStep();
+  }else{
+    l3SetMsg("l3SpellMsg","no","Not quite — correct tones highlighted. Try again.");
+    setTimeout(()=>{
+      l3ClearSpell();
+      l3SetMsg("l3SpellMsg","inf","Spell "+sub.symbol+" — select its chord tones.");
+      document.getElementById("l3SpellChkBtn").disabled=true;
+    },1800);
+  }
+}
+
+function l3AdvanceSpell(){
+  document.getElementById("l3SpellNextBtn").style.display="none";
+  l3LoadSpellBar(L3.barIdx+1);
+  l3RenderProgBar();
+}
+
+// ── Phase 3b — Fretboard ──────────────────────────────────────────────────
+function l3LoadFretBar(idx){
+  L3.barIdx=idx;L3.fretTaps=[];
+  const res=L3.results[idx];
+  const sub=res?.subChord;
+  const ch=L3.prog.chords[idx];
+  document.getElementById("l3FretActiveHdr").textContent=
+    "Bar "+(idx+1)+" · Sub: "+(sub?.symbol||"?")+
+    " over "+ch.symbol+" · min 4 notes · R+3rd mandatory";
+  l3BuildFretChips(idx);
+  document.getElementById("l3FretChkBtn").disabled=true;
+  document.getElementById("l3FretChkBtn").style.display="inline-block";
+  document.getElementById("l3FretNextBtn").style.display="none";
+  document.getElementById("l3FretDoneBtn").style.display="none";
+  l3SetMsg("l3FretMsg","inf","Place "+(sub?.symbol||ch.symbol)+" notes on the fretboard.");
+  l3g2RedrawCell(idx,false);
+  l3UpdFretSpan();
+}
+
+function l3BuildFretChips(barIdx){
+  const el=document.getElementById("l3FretChips");el.innerHTML="";
+  const sub=L3.results[barIdx]?.subChord;if(!sub)return;
+  sub.fbTones.forEach(t=>{
+    const d=document.createElement("div");d.className="chip";
+    d.innerHTML=`<span class="cn">${t.name}</span><span class="ci">${t.interval}</span>`;
+    el.appendChild(d);
+  });
+}
+
+function l3UpdFretChips(){
+  const sub=L3.results[L3.barIdx]?.subChord;if(!sub)return;
+  const foundCls=new Set(L3.fretTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+  document.getElementById("l3FretChips").querySelectorAll(".chip").forEach((el,i)=>{
+    const tone=sub.fbTones[i];if(!tone)return;el.classList.toggle("fnd",foundCls.has(tone.cls));
+  });
+}
+
+function l3UpdFretSpan(){
+  const frets=L3.fretTaps.map(t=>t.fret).filter(f=>f>0);
+  const span=frets.length>1?Math.max(...frets)-Math.min(...frets):0;
+  const el=document.getElementById("l3FretSpan");
+  el.textContent="span: "+span+(span===1?" fret":" frets");el.className="badge "+(span>4?"am":"gr");
+}
+
+function l3BuildFretGrid(){
+  const el=document.getElementById("l3FretGrid");if(!el)return;
+  el.innerHTML="";el.style.position="relative";
+  const minFret=l3ArpMinFret();
+  L3.prog.chords.forEach((ch,i)=>{
+    const res=L3.results[i];
+    const sub=res?.subChord;
+    const cell=document.createElement("div");
+    cell.className="l2-cell";
+    cell.style.cssText="background:rgba(83,74,183,0.07);border:0.5px solid rgba(83,74,183,0.35)";
+    const origLbl=`<span style='font-size:9px;color:var(--color-text-tertiary)'>${ch.symbol}</span>`;
+    const subLbl=sub
+      ?`<span class='l2-cell-sym' style='color:${L3_COLOR}'>${sub.symbol}</span>`
+      :`<span style='color:var(--color-text-tertiary);font-size:11px'>spell first</span>`;
+    const soundLbl=res?.subSound
+      ?`<div style='font-size:8px;color:${L3_COLOR};font-style:italic;margin-bottom:3px'>${res.subSound}</div>`
+      :"";
+    cell.innerHTML=
+      "<div class='l2-cell-hdr'>"+
+        "<div>"+origLbl+"<br>"+subLbl+"</div>"+
+        "<span class='l2-cell-fr'>"+minFret+"–"+(minFret+G2.FR-1)+"fr</span>"+
+      "</div>"+
+      "<div class='l2-cell-meta'>Sub over "+ch.symbol+" · bar "+(i+1)+"</div>"+
+      soundLbl+
+      "<div class='l2-cell-neck'>"+
+        "<div class='l2-cell-slabels'>"+
+          ["e","B","G","D","A","E"].map(s=>"<div class='l2-cell-slabel' style='height:"+Math.round(G2.H/6)+"px;line-height:"+Math.round(G2.H/6)+"px'>"+s+"</div>").join("")+
+        "</div>"+
+        "<div class='l2-cell-canvas-wrap'><canvas style='display:block;width:100%;height:"+G2.H+"px'></canvas></div>"+
+      "</div>";
+    el.appendChild(cell);
+    const canvas=cell.querySelector("canvas");
+    const bi=i;
+    canvas.addEventListener("click",function(e){l3g2OnTap(e,bi,this);});
+    canvas.addEventListener("touchstart",function(e){l3g2OnTap(e,bi,this);},{passive:false});
+  });
+  requestAnimationFrame(()=>{
+    el.querySelectorAll("canvas").forEach((c,i)=>l3g2Draw(c,i,false));
+  });
+}
+
+// ── L3 draw — static shape (identical to L2 arp display) ─────────────────
+function l3g2Draw(canvas,barIdx,showResult){
+  try{
+    const dpr=getDPR();
+    const cssW=canvas.offsetWidth||140;
+    canvas.width=Math.round(cssW*dpr);
+    canvas.height=Math.round(G2.H*dpr);
+    canvas.style.height=G2.H+"px";
+    const ctx=canvas.getContext("2d");
+    ctx.scale(dpr,dpr);
+    const dark=window.matchMedia("(prefers-color-scheme:dark)").matches;
+    const lc=dark?"rgba(255,255,255,0.12)":"rgba(0,0,0,0.09)";
+    const tc=dark?"#888":"#aaa";
+    const lo=l3ArpMinFret();
+    const res=L3.results[barIdx];
+    const sub=res?.subChord;
+    const allValid=sub?sub.fbTones.map(t=>t.cls):[];
+    ctx.clearRect(0,0,cssW,G2.H);
+    // Fret lines
+    for(let i=0;i<=G2.FR;i++){
+      const x=i/G2.FR*cssW;
+      ctx.strokeStyle=i===0?(dark?"rgba(255,255,255,0.45)":"rgba(0,0,0,0.35)"):lc;
+      ctx.lineWidth=i===0?2.5:0.7;
+      ctx.beginPath();ctx.moveTo(x,G2.ST-4);ctx.lineTo(x,G2.H-G2.SB+3);ctx.stroke();
+    }
+    // Fret numbers
+    ctx.fillStyle=tc;ctx.font="7.5px system-ui";ctx.textAlign="center";
+    for(let i=0;i<G2.FR;i++)ctx.fillText(lo+i,(i+0.5)/G2.FR*cssW,G2.H-3);
+    // Strings
+    for(let s=1;s<=G2.SC;s++){
+      const y=g2SY(s);
+      ctx.strokeStyle=lc;ctx.lineWidth=0.4+(G2.SC-s)*0.18;
+      ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cssW,y);ctx.stroke();
+    }
+    const isActive=barIdx===L3.barIdx&&L3.phase==="fretboard";
+    // Confirmed bar — static fret-accurate dots (dimmed)
+    if(res&&res.fretTaps&&!isActive){
+      res.fretTaps.forEach(tap=>{
+        const x=g2FX(tap.fret,lo,cssW);const y=g2SY(tap.string);
+        const cls=l2Nc(g2Midi(tap.string,tap.fret));
+        const isGuide=sub?(sub.guideTones||[]).some(t=>t.cls===cls):false;
+        g2Dot(ctx,x,y,G2.DR,L3_COLOR+"88",NC_NAME[cls],
+          sub?.fbTones.find(t=>t.cls===cls)?.interval||"",
+          isGuide?L3_COLOR:null,false,false);
+      });
+      return;
+    }
+    // Active bar — static fret-accurate dots, tap to place/remove
+    if(!isActive||!L3.fretTaps.length)return;
+    L3.fretTaps.forEach(tap=>{
+      const x=g2FX(tap.fret,lo,cssW);const y=g2SY(tap.string);
+      const cls=l2Nc(g2Midi(tap.string,tap.fret));
+      const isValid=allValid.includes(cls);
+      const isGuide=sub?(sub.guideTones||[]).some(t=>t.cls===cls):false;
+      const fill=showResult?(!isValid?"#A32D2D":L3_COLOR):L3_COLOR;
+      g2Dot(ctx,x,y,G2.DR,fill,NC_NAME[cls],
+        sub?.fbTones.find(t=>t.cls===cls)?.interval||"",
+        isGuide?fill:null,false,false);
+    });
+  }catch(err){console.error("l3g2Draw",err);}
+}
+
+// ── L3 tap handler ────────────────────────────────────────────────────────
+function l3g2OnTap(e,barIdx,canvas){
+  try{
+    e.preventDefault();
+    if(barIdx!==L3.barIdx||L3.phase!=="fretboard")return;
+    const res=L3.results[barIdx];
+    if(!res?.subChord){l3SetMsg("l3FretMsg","wn","Complete spelling phase for bar "+(barIdx+1)+" first.");return;}
+    const rect=canvas.getBoundingClientRect();
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    const px=cx-rect.left;const py=cy-rect.top;
+    const cssW=canvas.offsetWidth||140;
+    const lo=l3ArpMinFret();
+    const fret=Math.floor(px/cssW*G2.FR)+lo;
+    if(fret<lo||fret>=lo+G2.FR)return;
+    let str=1;let bd=Infinity;
+    for(let s=1;s<=G2.SC;s++){const d=Math.abs(py-g2SY(s));if(d<bd){bd=d;str=s;}}
+    const idx=L3.fretTaps.findIndex(t=>t.string===str&&t.fret===fret);
+    if(idx>=0){
+      L3.fretTaps.splice(idx,1);
+    }else{
+      L3.fretTaps.push({string:str,fret});
+    }
+    l3g2RedrawCell(barIdx,false);
+    l3UpdFretChips();l3UpdFretSpan();
+    const sub=res.subChord;
+    const allValid=sub.fbTones.map(t=>t.cls);
+    const rootCls=NC_MAP[sub.root];
+    const thirdIv=sub.fbTones.find(t=>t.interval==="3"||t.interval==="b3");
+    const must=[rootCls];if(thirdIv)must.push(thirdIv.cls);
+    const foundCls=new Set(L3.fretTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+    const wrong=L3.fretTaps.filter(t=>!allValid.includes(l2Nc(g2Midi(t.string,t.fret))));
+    const missing=must.filter(c=>!foundCls.has(c)).map(c=>NC_NAME[c]);
+    if(wrong.length)l3SetMsg("l3FretMsg","no","Non-chord note — use "+sub.symbol+" tones only.");
+    else if(missing.length)l3SetMsg("l3FretMsg","inf","Still need: "+missing.join(", ")+".");
+    else if(L3.fretTaps.length<4)l3SetMsg("l3FretMsg","inf",L3.fretTaps.length+" notes — need at least 4.");
+    else l3SetMsg("l3FretMsg","ok","Ready — press Check.");
+    document.getElementById("l3FretChkBtn").disabled=L3.fretTaps.length===0;
+  }catch(err){console.error("l3g2OnTap",err);}
+}
+
+function l3g2RedrawCell(barIdx,showResult){
+  const grid=document.getElementById("l3FretGrid");if(!grid)return;
+  grid.querySelectorAll("canvas").forEach((c,i)=>l3g2Draw(c,i,i===barIdx?showResult:!!(L3.results[i]?.fretTaps)));
+}
+
+// ── Check / validate arpeggio ─────────────────────────────────────────────
+function l3CheckFret(){
+  const res=L3.results[L3.barIdx];
+  const sub=res?.subChord;
+  if(!sub){l3SetMsg("l3FretMsg","no","Complete spelling phase first.");return;}
+  const allValid=sub.fbTones.map(t=>t.cls);
+  const rootCls=NC_MAP[sub.root];
+  const thirdIv=sub.fbTones.find(t=>t.interval==="3"||t.interval==="b3");
+  const must=[rootCls];if(thirdIv)must.push(thirdIv.cls);
+  const foundCls=new Set(L3.fretTaps.map(t=>l2Nc(g2Midi(t.string,t.fret))));
+  const wrongNotes=L3.fretTaps.filter(t=>!allValid.includes(l2Nc(g2Midi(t.string,t.fret))));
+  const missingMust=must.filter(c=>!foundCls.has(c));
+  let errors=[];
+  if(wrongNotes.length)errors.push("non-chord notes: "+[...new Set(wrongNotes.map(t=>NC_NAME[l2Nc(g2Midi(t.string,t.fret))]))].join(", "));
+  if(missingMust.length)errors.push("missing: "+missingMust.map(c=>NC_NAME[c]).join(", "));
+  if(L3.fretTaps.length<4)errors.push("need at least 4 notes ("+L3.fretTaps.length+" tapped)");
+  l3g2RedrawCell(L3.barIdx,errors.length>0);
+  if(errors.length){
+    l3SetMsg("l3FretMsg","no",errors.join(" · ")+".");
+    setTimeout(()=>{
+      L3.fretTaps=[];l3g2RedrawCell(L3.barIdx,false);l3UpdFretChips();
+      l3SetMsg("l3FretMsg","inf","Place "+sub.symbol+" notes on the fretboard.");
+      document.getElementById("l3FretChkBtn").disabled=true;
+    },1800);
+    return;
+  }
+  // Passed
+  res.fretTaps=[...L3.fretTaps];
+  if(L3.barIdx>0)l3ComputeVL(L3.barIdx);
+  l3g2RedrawCell(L3.barIdx,false);
+  l3drawVLOverlay();
+  l3SetMsg("l3FretMsg","ok","Correct!"+(L3.barIdx<L3.chordCount-1?" Next chord.":" All done!"));
+  l3RenderProgBar();
+  if(L3.barIdx<L3.chordCount-1){
+    document.getElementById("l3FretNextBtn").style.display="inline-block";
+    document.getElementById("l3FretChkBtn").style.display="none";
+  }else{
+    document.getElementById("l3FretDoneBtn").style.display="inline-block";
+    document.getElementById("l3FretChkBtn").style.display="none";
+  }
+}
+
+// ── Step B — Tension identification ───────────────────────────────────────
+
+// All possible jazz interval names (covers all sub notes over any chord root)
+const L3_IVS=["R","b9","9","#9","b3","3","b4","4","b5","#4","11","#11","5","#5","b6","b13","6","13","b7","7"];
+
+function l3ShowTensionStep(){
+  L3.spellStep="tension";
+  L3.tensionSel={};
+  const sub=L3.subChord;
+  const origCh=L3.prog.chords[L3.barIdx];
+  // Show tension wrap, hide note grid label change
+  document.getElementById("l3NoteGridLbl").textContent="Spelled correctly ✓";
+  document.getElementById("l3TensionWrap").style.display="block";
+  document.getElementById("l3TensionOrigSym").textContent=origCh.symbol;
+  // Build tension grid — one column per correct note
+  const grid=document.getElementById("l3TensionGrid");grid.innerHTML="";
+  sub.fbNames.forEach(noteName=>{
+    const col=document.createElement("div");
+    col.className="l3-tension-note";col.id="l3tn_col_"+noteName;
+    // Note name label (green — already spelled correctly)
+    const nameLbl=document.createElement("div");
+    nameLbl.className="l3-tension-name";nameLbl.id="l3tn_name_"+noteName;
+    nameLbl.textContent=noteName;
+    // Interval buttons
+    const btnWrap=document.createElement("div");btnWrap.className="l3-iv-btns";
+    L3_IVS.forEach(iv=>{
+      const b=document.createElement("button");
+      b.className="l3-iv-btn";
+      b.textContent=iv;
+      b.id="l3tn_"+noteName+"_"+iv.replace(/[#b]/g,c=>c==="b"?"b":"s");
+      b.onclick=()=>l3TogTension(noteName,iv,b);
+      btnWrap.appendChild(b);
+    });
+    col.appendChild(nameLbl);col.appendChild(btnWrap);
+    grid.appendChild(col);
+  });
+  document.getElementById("l3TensionChkBtn").style.display="inline-block";
+  document.getElementById("l3TensionChkBtn").disabled=true;
+  l3SetMsg("l3SpellMsg","inf","For each note, tap the interval it creates over "+origCh.symbol+".");
+}
+
+function l3TogTension(noteName,iv,btn){
+  // If this note is already locked correct (gold), ignore taps
+  const nameLbl=document.getElementById("l3tn_name_"+noteName);
+  if(nameLbl&&nameLbl.classList.contains("correct"))return;
+  // Clear previous selection for this note
+  const col=document.getElementById("l3tn_col_"+noteName);
+  if(col)col.querySelectorAll(".l3-iv-btn").forEach(b=>b.classList.remove("on"));
+  if(L3.tensionSel[noteName]===iv){
+    delete L3.tensionSel[noteName];
+  }else{
+    L3.tensionSel[noteName]=iv;
+    btn.classList.add("on");
+    // Clear amber indicator when student makes a new selection
+    if(nameLbl&&nameLbl.classList.contains("wrong"))nameLbl.className="l3-tension-name";
+  }
+  // Enable check when all notes have a selection
+  const sub=L3.subChord;
+  const allSelected=sub&&sub.fbNames.every(n=>L3.tensionSel[n]);
+  document.getElementById("l3TensionChkBtn").disabled=!allSelected;
+}
+
+// Enharmonic pairs — both names are correct for the same interval
+function l3IntervalsMatch(a,b){
+  if(a===b)return true;
+  const eq={"#4":["#11","b5"],"#11":["#4","b5"],"b5":["#4","#11"],
+             "4":["11"],"11":["4"],"6":["13"],"13":["6"],
+             "#5":["b6"],"b6":["#5"],"b2":["b9"],"b9":["b2"]};
+  return(eq[a]||[]).includes(b)||(eq[b]||[]).includes(a);
+}
+
+function l3CheckTensions(){
+  const sub=L3.subChord;
+  const origRootCls=NC_MAP[L3.prog.chords[L3.barIdx].root];
+  let allCorrect=true;
+  const correctMap={};
+  sub.fbNames.forEach(noteName=>{
+    const noteCls=NC_MAP[noteName];
+    correctMap[noteName]=l3IntervalOverRoot(noteCls,origRootCls,L3.prog.chords[L3.barIdx].quality);
+  });
+  // Validate each note's selection
+  sub.fbNames.forEach(noteName=>{
+    const selected=L3.tensionSel[noteName];
+    const correct=correctMap[noteName];
+    const nameLbl=document.getElementById("l3tn_name_"+noteName);
+    const col=document.getElementById("l3tn_col_"+noteName);
+    // Mark all buttons
+    if(col)col.querySelectorAll(".l3-iv-btn").forEach(b=>{
+      b.classList.remove("on","correct","wrong");
+      if(b.textContent===selected&&!l3IntervalsMatch(selected,correct))b.classList.add("wrong");
+      if(l3IntervalsMatch(b.textContent,correct))b.classList.add("correct");
+    });
+    if(l3IntervalsMatch(selected,correct)){
+      if(nameLbl)nameLbl.className="l3-tension-name correct";
+      // Lock the correct button green
+      if(col)col.querySelectorAll(".l3-iv-btn").forEach(b=>{
+        b.classList.remove("on","correct","wrong");
+        if(l3IntervalsMatch(b.textContent,correct))b.classList.add("correct");
+      });
+    }else{
+      if(nameLbl)nameLbl.className="l3-tension-name wrong";
+      allCorrect=false;
+    }
+  });
+  if(allCorrect){
+    // Build summary string: "D=3, F=5, Ab=b7, C=9"
+    const summary=sub.fbNames.map(n=>n+"="+correctMap[n]).join(", ");
+    l3SetMsg("l3SpellMsg","ok",sub.symbol+" over "+L3.prog.chords[L3.barIdx].symbol+": "+summary+".");
+    document.getElementById("l3TensionChkBtn").disabled=true;
+    l3RenderProgBar();
+    if(L3.barIdx<L3.chordCount-1){
+      document.getElementById("l3SpellNextBtn").style.display="inline-block";
+    }else{
+      document.getElementById("l3SpellDoneBtn").style.display="inline-block";
+    }
+  }else{
+    l3SetMsg("l3SpellMsg","no","Not all correct — correct intervals shown in gold. Try again.");
+    setTimeout(()=>{
+      // Reset wrong selections only — keep correct ones locked gold
+      sub.fbNames.forEach(noteName=>{
+        const noteCls=NC_MAP[noteName];
+        const correct=l3IntervalOverRoot(noteCls,origRootCls,L3.prog.chords[L3.barIdx].quality);
+        if(!l3IntervalsMatch(L3.tensionSel[noteName]||'',correct)){
+          delete L3.tensionSel[noteName];
+          const col=document.getElementById("l3tn_col_"+noteName);
+          if(col)col.querySelectorAll(".l3-iv-btn").forEach(b=>b.classList.remove("on","correct","wrong"));
+          // Keep amber on the note name to signal still needs work
+          const nameLbl=document.getElementById("l3tn_name_"+noteName);
+          if(nameLbl)nameLbl.className="l3-tension-name wrong";
+        }
+      });
+      const allSelected=sub.fbNames.every(n=>L3.tensionSel[n]);
+      document.getElementById("l3TensionChkBtn").disabled=!allSelected;
+      l3SetMsg("l3SpellMsg","inf","Tap the correct interval for the amber notes over "+L3.prog.chords[L3.barIdx].symbol+".");
+    },1800);
+  }
+}
+
+// ── Check / validate fretboard ─────────────────────────────────────────────
+function l3ClearFretTaps(){
+  L3.fretTaps=[];l3g2RedrawCell(L3.barIdx,false);l3UpdFretChips();
+  const sub=L3.results[L3.barIdx]?.subChord;
+  l3SetMsg("l3FretMsg","inf","Place "+(sub?.symbol||"sub chord")+" notes on the fretboard.");
+  document.getElementById("l3FretChkBtn").disabled=true;
+  l3UpdFretSpan();
+}
+
+function l3AdvanceFret(){
+  document.getElementById("l3FretNextBtn").style.display="none";
+  document.getElementById("l3FretChkBtn").style.display="inline-block";
+  l3LoadFretBar(L3.barIdx+1);
+  l3RenderProgBar();
+}
+
+// ── VL engine ─────────────────────────────────────────────────────────────
+
+// Map semitone distance to jazz interval name over a root
+// Requires original chord quality for correct enharmonic choice
+function l3IntervalOverRoot(noteCls,rootCls,origQuality){
+  const dist=(noteCls-rootCls+12)%12;
+  const isDom=origQuality&&(origQuality.startsWith("dom")||origQuality==="dom7alt");
+  const isMinor=origQuality&&(origQuality.startsWith("m")&&!origQuality.startsWith("maj"));
+  const isHalfDim=origQuality==="m7b5";
+  const isMaj=origQuality&&(origQuality.startsWith("maj")||origQuality==="maj7"||origQuality==="maj9");
+  switch(dist){
+    case 0: return "R";
+    case 1: return "b9";
+    case 2: return "9";
+    case 3: return (isDom&&!isMinor)?"#9":"b3";  // b3 over minor/half-dim, #9 over altered dom
+    case 4: return "3";
+    case 5: return "11";
+    case 6: return (isMaj||isDom)?"#11":"b5";    // #11 over major/dom Lydian, b5 over half-dim
+    case 7: return "5";
+    case 8: return (isDom)?"b13":"b6";            // b13 over dominant, b6 over minor/major
+    case 9: return "13";
+    case 10: return "b7";
+    case 11: return "7";
+    default: return "?";
+  }
+}
+
+// Compute per-string VL between confirmed sub arp shapes for barIdx and barIdx-1
+function l3ComputeVL(barIdx){
+  if(barIdx===0)return;
+  L3.vlLines=L3.vlLines.filter(v=>v.toBar!==barIdx);
+  const prevRes=L3.results[barIdx-1];const currRes=L3.results[barIdx];
+  if(!prevRes?.fretTaps||!currRes?.fretTaps)return;
+  const mapA={};prevRes.fretTaps.forEach(t=>{mapA[t.string]=t;});
+  const mapB={};currRes.fretTaps.forEach(t=>{mapB[t.string]=t;});
+  const prevSub=prevRes.subChord;const currSub=currRes.subChord;
+  for(let s=1;s<=6;s++){
+    const a=mapA[s];const b=mapB[s];if(!a||!b)continue;
+    const dist=Math.abs(b.fret-a.fret);
+    // Detect 7th→3rd across the bar boundary
+    const aIv=prevSub?prevSub.fbTones.find(t=>t.cls===l2Nc(g2Midi(a.string,a.fret)))?.interval||"":"";
+    const bIv=currSub?currSub.fbTones.find(t=>t.cls===l2Nc(g2Midi(b.string,b.fret)))?.interval||"":"";
+    const is7to3=(aIv==="7"||aIv==="b7")&&(bIv==="3"||bIv==="b3");
+    L3.vlLines.push({fromBar:barIdx-1,toBar:barIdx,str:s,fromTap:a,toTap:b,dist,is7to3});
+  }
+}
+
+// Draw VL SVG overlays on the fret grid
+function l3drawVLOverlay(){
+  document.querySelectorAll(".l3-vl-svg").forEach(e=>e.remove());
+  const grid=document.getElementById("l3FretGrid");if(!grid)return;
+  const xrow=document.getElementById("l3FretXrow");if(xrow)xrow.innerHTML="";
+  const lo=l3ArpMinFret();
+  const canvases=Array.from(grid.querySelectorAll("canvas"));
+  // Same-row pairs: 0→1, 2→3
+  [[0,1],[2,3]].forEach(([a,b])=>{
+    if(b>=L3.chordCount)return;
+    const cA=canvases[a];const cB=canvases[b];if(!cA||!cB)return;
+    const rowLines=L3.vlLines.filter(v=>v.fromBar===a&&v.toBar===b);
+    if(!rowLines.length)return;
+    const gR=grid.getBoundingClientRect();
+    const rA=cA.getBoundingClientRect();const rB=cB.getBoundingClientRect();
+    if(!rA.width||!rB.width)return;
+    const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
+    svg.className="l3-vl-svg";
+    const svgX=rA.left-gR.left;const svgW=rB.right-rA.left;
+    const svgY=rA.top-gR.top-6;const svgH=G2.H+20;
+    svg.style.cssText="position:absolute;left:"+svgX+"px;top:"+svgY+"px;width:"+svgW+"px;height:"+svgH+"px;pointer-events:none;overflow:visible";
+    const cAW=rA.width;const cBS=rB.left-rA.left;const cBW=rB.width;
+    rowLines.forEach(vl=>{
+      const xA=g2FX(vl.fromTap.fret,lo,cAW);
+      const xB=cBS+g2FX(vl.toTap.fret,lo,cBW);
+      const yA=g2SY(vl.str)+6;const yB=g2SY(vl.str)+6;
+      const vs=l2vlStyle(vl.dist,vl.is7to3,true);
+      const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+      ln.setAttribute("x1",xA);ln.setAttribute("y1",yA);
+      ln.setAttribute("x2",xB);ln.setAttribute("y2",yB);
+      ln.setAttribute("stroke",vs.col);ln.setAttribute("stroke-width",vs.w);
+      if(vs.dash)ln.setAttribute("stroke-dasharray",vs.dash.join?vs.dash.join(","):vs.dash);
+      svg.appendChild(ln);
+      // Label
+      const mx=(xA+xB)/2;const my=yA-6;
+      const txt=document.createElementNS("http://www.w3.org/2000/svg","text");
+      txt.setAttribute("x",mx);txt.setAttribute("y",my);
+      txt.setAttribute("text-anchor","middle");
+      txt.setAttribute("font-size",vs.lbl.includes("✓")?"8.5":"8");
+      txt.setAttribute("font-weight",vs.lbl.includes("✓")?"700":"500");
+      txt.setAttribute("fill",vs.col);txt.setAttribute("font-family","system-ui");
+      txt.textContent=vs.lbl;svg.appendChild(txt);
+    });
+    grid.appendChild(svg);
+  });
+  // Cross-row 1→2 as badges
+  const cross=L3.vlLines.filter(v=>v.fromBar===1&&v.toBar===2);
+  if(cross.length&&xrow){
+    const lbl=document.createElement("span");
+    lbl.textContent=L3.prog.chords[1].symbol+"→"+L3.prog.chords[2].symbol+": ";
+    xrow.appendChild(lbl);
+    cross.forEach(vl=>{
+      const vs=l2vlStyle(vl.dist,vl.is7to3,true);
+      const b=document.createElement("span");
+      b.style.cssText="color:"+vs.col+";background:"+vs.col+"18;border:0.5px solid "+vs.col+"44;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:"+(vs.lbl.includes("✓")?"700":"400");
+      const strName=["e","B","G","D","A","E"][vl.str-1];
+      b.textContent="str "+strName+": "+vs.lbl;
+      xrow.appendChild(b);
+    });
+  }
+}
+
+// ── Summary ────────────────────────────────────────────────────────────────
+function l3ShowSummary(){
+  document.getElementById("l3SummaryCard").style.display="block";
+  document.getElementById("l3SumMeta").textContent=
+    L3.prog.progName+" — "+L3.prog.key+" · "+L3.chordCount+" chords · "+L3.prog.arpPos+" position";
+  const content=document.getElementById("l3SumContent");content.innerHTML="";
+  const sumGrid=document.createElement("div");sumGrid.className="sum-grid";
+  sumGrid.style.gridTemplateColumns=`repeat(${Math.min(L3.chordCount,window.innerWidth<480?2:4)},1fr)`;
+  L3.results.forEach((res,i)=>{
+    if(!res)return;
+    const orig=L3.prog.chords[i];
+    const sub=res.subChord;
+    const famLabel={
+      "3rd":"3rd family","b3rd":"b3rd family","6th":"6th-built",
+      "tritone":"Tritone","altered":"Altered",
+      "5th-maj7":"5th — maj7","5th-m7":"5th — m7",
+      "b7-maj7":"b7 — maj7","b6-maj7":"b6 — maj7 (Locrian#2)",
+      "b5-maj7":"b5 — maj7 (Locrian#2)","5th-m7-min":"5th — m7",
+      "b7-maj7-min":"b7 — maj7","7th-m7b5":"7th — m7b5",
+      "2nd-m7":"2nd — m7"
+    }[res.subFamily]||res.subFamily||"";
+    const cell=document.createElement("div");
+    cell.className="sum-cell";cell.style.borderLeftColor=L3_COLOR;
+    const explain=l3Explain(orig,sub,res.subFamily);
+    cell.innerHTML=
+      `<div class="sum-roman">${orig.roman} · bar ${i+1}</div>`+
+      `<div class="sum-sym">${orig.symbol} <span style="color:var(--color-text-tertiary);font-size:14px">→</span> <span style="color:${L3_COLOR}">${sub?.symbol||"?"}</span></div>`+
+      `<div class="sum-tones" style="margin-top:2px"><span style="color:${L3_COLOR};font-weight:500">${famLabel}</span> · ${res.subSound||""}</div>`+
+      `<div style="font-size:10px;color:var(--color-text-secondary);margin-top:4px;font-style:italic">${explain}</div>`;
+    sumGrid.appendChild(cell);
+  });
+  content.appendChild(sumGrid);
+  // VL summary
+  if(L3.vlLines.length){
+    const vlTitle=document.createElement("div");
+    vlTitle.style.cssText="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin:1rem 0 .3rem";
+    vlTitle.textContent="Shape voice leading (per string)";
+    content.appendChild(vlTitle);
+    L3.vlLines.forEach(vl=>{
+      const fromCh=L3.prog.chords[vl.fromBar];const toCh=L3.prog.chords[vl.toBar];
+      const fromSub=L3.results[vl.fromBar]?.subChord;const toSub=L3.results[vl.toBar]?.subChord;
+      const vs=l2vlStyle(vl.dist,vl.is7to3,true);
+      const strName=["e","B","G","D","A","E"][vl.str-1];
+      const row=document.createElement("div");
+      row.style.cssText="display:flex;align-items:center;gap:8px;padding:.25rem 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px";
+      row.innerHTML=
+        "<span style='color:var(--color-text-secondary);min-width:36px'>b"+(vl.fromBar+1)+"→"+(vl.toBar+1)+"</span>"+
+        "<span style='color:var(--color-text-tertiary);min-width:60px'>str "+strName+"</span>"+
+        "<span style='font-weight:500'>"+(fromSub?.symbol||"?")+"→"+(toSub?.symbol||"?")+"</span>"+
+        "<div style='flex:1;height:"+vs.w+"px;background:"+vs.col+";border-radius:1px'></div>"+
+        "<span style='color:"+vs.col+";font-weight:"+(vs.lbl.includes("✓")?"700":"500")+"'>"+vs.lbl+"</span>";
+      content.appendChild(row);
+    });
+  }
+}
+
+function l3Explain(orig,sub,family){
+  if(!sub)return"";
+  const oRoot=orig.root;const sRoot=sub.root;
+  switch(family){
+    case"3rd":    return sRoot+" is the 3rd of "+oRoot+". "+sub.symbol+" adds dominant 9th colour.";
+    case"b3rd":   return sRoot+" is the b3rd of "+oRoot+". "+sub.symbol+" adds 9th colour.";
+    case"6th":    return sRoot+" is the 6th of "+oRoot+". "+sub.symbol+" gives 13th colour.";
+    case"tritone":return sRoot+" is a tritone from "+oRoot+". Approaches resolution a half step away.";
+    case"altered":return sRoot+" is the b9 of "+oRoot+". "+sub.symbol+" gives the full altered scale in 4 notes.";
+    case"5th-maj7":return sRoot+" is the 5th of "+oRoot+". "+sub.symbol+" gives a Lydian dominant colour — floats over the chord.";
+    case"5th-m7": return sRoot+" is the 5th of "+oRoot+". "+sub.symbol+" gives a suspended/Dorian flavour.";
+    case"b7-maj7":return sRoot+" is the b7 of "+oRoot+". "+sub.symbol+" gives a Lydian b7 colour — Rosenwinkel sound.";
+    case"b6-maj7":return sRoot+" is the b6 of "+oRoot+". "+sub.symbol+" implies "+oRoot+" melodic minor — Locrian#2/Rosenwinkel.";
+    case"b7-maj7-min":return sRoot+" is the b7 of "+oRoot+". "+sub.symbol+" gives a Dorian maj7 flavour — Metheny/Rosenwinkel.";
+    case"b5-maj7":return sRoot+" is the b5 of "+oRoot+". "+sub.symbol+" gives the Locrian#2 sound over half-dim — Rosenwinkel signature.";
+    case"5th-m7-min":return sRoot+" is the 5th of "+oRoot+". "+sub.symbol+" gives an open minor 11th sound — Metheny.";
+    case"7th-m7b5":return sRoot+" is the major 7th of "+oRoot+". "+sub.symbol+" is a "+oRoot+"maj9 with no root — Breau/Rosenwinkel.";
+    case"2nd-m7": return sRoot+" is the 2nd of "+oRoot+". "+sub.symbol+" gives a 9th sus colour — all tones diatonic.";
+    default:return"";
+  }
+}
+
+// ── Shared message helper ──────────────────────────────────────────────────
+function l3SetMsg(elId,type,text){
+  const el=document.getElementById(elId);if(!el)return;
+  el.className="msg"+(type?" "+type+" on":"");el.textContent=text;
+}
+
+// ── Settings: re-open shared intro overlay at Level 3 ─────────────────────
+function l3ShowSettings(){
+  introPickLevel(3);
+  document.getElementById("introOverlay").style.display="flex";
+}
+
 </script>
 </body>
 </html>
