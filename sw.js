@@ -1,6 +1,6 @@
 // Jazz Guitar Study — Service Worker v30
 // Clears ALL previous caches on activation
-const CACHE = "jazz-study-v30";
+const CACHE = "jazz-study-v31";
 const ASSETS = [
   "./",
   "./index.html",
